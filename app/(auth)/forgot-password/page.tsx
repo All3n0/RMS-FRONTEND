@@ -1,42 +1,41 @@
-// app/(auth)/forgot-password/page.tsx
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
+  const [username, setUsername] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const res = await fetch('http://127.0.0.1:5556/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username }),
+    });
+    const data = await res.json();
+    setMessage(data.message || 'Check your email for recovery instructions.');
+  };
+
   return (
-    <>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Forgot your password?</h2>
-      <p className="text-sm text-gray-600 mb-6">
-        Enter your email address below and we’ll send you a link to reset your password.
-      </p>
-
-      <form className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-          <input
-            type="email"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="you@example.com"
-            style={{ color: 'black' }}
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition"
-        >
-          Send Reset Link
-        </button>
-      </form>
-
-      <p className="text-sm text-gray-600 text-center mt-6">
-        Remember your password?{' '}
-        <Link href="/login" className="text-blue-600 font-semibold hover:underline">
-          Sign in
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <h2 className="text-2xl font-bold text-center text-gray-800">Forgot Password</h2>
+      <input
+        placeholder="Enter your username"
+        className="input input-bordered w-full"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+      {message && <p className="text-green-600 text-sm">{message}</p>}
+      <button className="btn btn-neutral w-full">Submit</button>
+      <p className="text-sm text-center text-gray-500">
+        Remembered your password?{' '}
+        <Link href="/login" className="text-blue-600 font-medium">
+          Go to login
         </Link>
       </p>
-    </>
+    </form>
   );
 }

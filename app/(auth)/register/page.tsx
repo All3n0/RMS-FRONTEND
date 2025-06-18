@@ -1,58 +1,136 @@
-// app/(auth)/register/page.tsx
 'use client';
-
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-  return (
-    <>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Create an account</h2>
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'user',
+    is_active: true,
+  });
+  const [error, setError] = useState('');
 
-      <form className="space-y-5">
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type, checked } = e.target;
+    const val = type === 'checkbox' ? checked : value;
+    setFormData((prev) => ({ ...prev, [name]: val }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const res = await fetch('http://127.0.0.1:5556/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Registration failed');
+        return;
+      }
+
+      router.push('/login');
+    } catch (err) {
+      setError('Something went wrong');
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4 text-center" style={{ color: 'black' }}>
+        Register
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <label htmlFor="username" className="block text-sm font-medium" style={{ color: 'black' }}>
+            Username
+          </label>
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="John Doe"
+            name="username"
             required
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+          <label htmlFor="email" className="block text-sm font-medium" style={{ color: 'black' }}>
+            Email
+          </label>
           <input
             type="email"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="you@example.com"
+            name="email"
             required
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label htmlFor="password" className="block text-sm font-medium" style={{ color: 'black' }}>
+            Password
+          </label>
           <input
             type="password"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="••••••••"
+            name="password"
             required
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
-
+        <div>
+          <label htmlFor="role" className="block text-sm font-medium" style={{ color: 'black' }}>
+            Role
+          </label>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
+            style={{ color: 'black' }}
+          >
+            <option value="tenant">Tenant</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="is_active"
+            checked={formData.is_active}
+            onChange={handleChange}
+            className="w-4 h-4"
+          />
+          <label htmlFor="is_active" className="text-sm">
+            Active account?
+          </label>
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition"
+          className="btn btn-neutral w-full"
         >
-          Sign Up
+          Create Account
         </button>
+        <p className="text-sm text-gray-500 text-center">
+          Already have an account?{' '}
+          <a href="/login" className="text-blue-500 hover:underline">
+            Login
+          </a>
+        </p>
       </form>
-
-      <p className="text-sm text-gray-600 text-center mt-6">
-        Already have an account?{' '}
-        <Link href="/login" className="text-blue-600 font-semibold hover:underline">
-          Sign in
-        </Link>
-      </p>
-    </>
+    </div>
   );
 }
