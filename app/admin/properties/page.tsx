@@ -1,9 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { BuildingOffice2Icon, WrenchScrewdriverIcon, HomeModernIcon } from '@heroicons/react/24/solid';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import { HomeModernIcon } from '@heroicons/react/24/solid';
+import AddPropertyPopup from '../components/AddPropertyPopup';
 
 export default function PropertiesPage() {
+  const [showForm, setShowForm] = useState(false);
+  const [adminId, setAdminId] = useState(null);
+  const [properties, setProperties] = useState([]);
+
+  // Get admin ID from cookie
+  useEffect(() => {
+    const cookie = Cookies.get('user');
+    if (cookie) {
+      try {
+        const userData = JSON.parse(cookie);
+        const id = userData?.user?.user_id;
+        setAdminId(id);
+
+        if (id) {
+          fetch(`http://127.0.0.1:5556/properties/admin/${id}`)
+            .then((res) => res.json())
+            .then((data) => setProperties(data));
+        }
+      } catch (error) {
+        console.error('Failed to parse user cookie:', error);
+      }
+    }
+  }, []);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen space-y-8">
       {/* Header */}
@@ -14,42 +41,38 @@ export default function PropertiesPage() {
 
       {/* Add Property Button */}
       <div>
-        <Link href="/properties/add">
-          <button className="btn btn-neutral px-6">+ Add Property</button>
-        </Link>
+        <button onClick={() => setShowForm(true)} className="btn btn-neutral px-6">
+          + Add Property
+        </button>
       </div>
 
-      {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/properties/occupied">
-          <div className="bg-white hover:shadow-lg transition-shadow duration-300 rounded-lg border-l-8 border-green-500 p-6 flex items-center gap-4 cursor-pointer">
-            <BuildingOffice2Icon className="h-10 w-10 text-black bg-white p-1 rounded" />
-            <div>
-              <h2 className="text-xl font-semibold text-black">Occupied</h2>
-              <p className="text-green-600 font-bold text-lg">12 Units</p>
-            </div>
-          </div>
-        </Link>
+      {/* Add Property Form Popup */}
+      {showForm && (
+        <AddPropertyPopup
+          onClose={() => setShowForm(false)}
+          onSuccess={() => {
+            setShowForm(false);
+            // re-fetch properties
+            fetch(`http://127.0.0.1:5555/properties/admin/${adminId}`)
+              .then((res) => res.json())
+              .then((data) => setProperties(data));
+          }}
+        />
+      )}
 
-        <Link href="/properties/vacant">
-          <div className="bg-white hover:shadow-lg transition-shadow duration-300 rounded-lg border-l-8 border-yellow-400 p-6 flex items-center gap-4 cursor-pointer">
-            <HomeModernIcon className="h-10 w-10 text-black bg-white p-1 rounded" />
-            <div>
-              <h2 className="text-xl font-semibold text-black">Vacant</h2>
-              <p className="text-yellow-500 font-bold text-lg">5 Units</p>
+      {/* Properties Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {properties.map((property) => (
+          <Link key={property.id} href={`admin/properties/${property.id}`}>
+            <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex items-center gap-4 cursor-pointer border-l-8 border-neutral">
+              <HomeModernIcon className="h-10 w-10 text-black bg-white p-1 rounded" />
+              <div>
+                <h2 className="text-xl font-semibold text-black">{property.address}</h2>
+                <p className="text-gray-600">{property.city}, {property.zip_code}</p>
+              </div>
             </div>
-          </div>
-        </Link>
-
-        <Link href="/properties/maintenance">
-          <div className="bg-white hover:shadow-lg transition-shadow duration-300 rounded-lg border-l-8 border-red-500 p-6 flex items-center gap-4 cursor-pointer">
-            <WrenchScrewdriverIcon className="h-10 w-10 text-black bg-white p-1 rounded" />
-            <div>
-              <h2 className="text-xl font-semibold text-black">Maintenance</h2>
-              <p className="text-red-600 font-bold text-lg">3 Requests</p>
-            </div>
-          </div>
-        </Link>
+          </Link>
+        ))}
       </div>
     </div>
   );
