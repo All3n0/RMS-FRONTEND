@@ -7,6 +7,7 @@ import AddUnitPopup from '../../components/AddUnitPopup';
 
 export default function PropertyDetailPage() {
   const { propertyId } = useParams();
+  const parsedPropertyId = parseInt(propertyId);
   const [units, setUnits] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -30,7 +31,7 @@ export default function PropertyDetailPage() {
 
       {showPopup && (
         <AddUnitPopup
-          propertyId={propertyId}
+          propertyId={parsedPropertyId}
           onClose={() => setShowPopup(false)}
         />
       )}
