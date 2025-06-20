@@ -41,7 +41,7 @@ export default function PropertiesPage() {
 
       {/* Add Property Button */}
       <div>
-        <button onClick={() => setShowForm(true)} className="btn btn-neutral px-6">
+        <button onClick={() => setShowForm(true)} className="btn btn-neutral rounded-md px-6">
           + Add Property
         </button>
       </div>
@@ -63,7 +63,7 @@ export default function PropertiesPage() {
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {properties.map((property) => (
-          <Link key={property.id} href={`admin/properties/${property.id}`}>
+          <Link key={property.id} href={`/admin/properties/${property.id}`}>
             <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex items-center gap-4 cursor-pointer border-l-8 border-neutral">
               <HomeModernIcon className="h-10 w-10 text-black bg-white p-1 rounded" />
               <div>
