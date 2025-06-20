@@ -195,7 +195,7 @@ const handleDeleteProperty = async () => {
           units.map((unit) => (
             <Link 
               key={unit.unit_id} 
-              href={`/units/${unit.unit_id}`}
+              href={`/admin/properties/${propertyId}/${unit.unit_id}`}
               className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
             >
               <div className="flex items-start space-x-4">
