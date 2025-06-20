@@ -53,3 +53,46 @@ button {
   transition: background-color 0.3s ease;
   box-shadow:#0a0a0a 2px;
 }
+/* Reduce dark backdrop opacity */
+/* Custom modal backdrop with soft dimming */
+/* Soft dark background for modal */
+.custom-backdrop {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Centered modal styling */
+.custom-modal {
+  background-color: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix modal body overflow */
+.custom-modal .modal-body {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Form input spacing */
+.custom-modal .form-control {
+  margin-bottom: 1rem;
+}
+
+/* Optional: round buttons */
+.custom-modal .btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.custom-modal .modal-header,
+.custom-modal .modal-footer {
+  border: none;
+}
+h2{
+  color: #000000;
+}

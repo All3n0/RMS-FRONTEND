@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import TenantAssignmentModal from '../../../components/TenantAssignmentModal';
@@ -8,10 +8,7 @@ import PaymentRecordingModal from '../../../components/PaymentReordingModal';
 import LeaseEndModal from '../../../components/LeaseEndModal';
 
 export default function PropertyUnitPage() {
-  const params = useParams();
-  console.log(params);
-  const unitId = params.unitId;
-
+  const { unitId } = useParams();
   const [unit, setUnit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,13 +17,14 @@ export default function PropertyUnitPage() {
   const [showEndLeaseModal, setShowEndLeaseModal] = useState(false);
 
   useEffect(() => {
+    if (!unitId) return;
     const fetchUnitData = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:5556/units/${unitId}`);
         setUnit(response.data);
-        setLoading(false);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to fetch unit data');
+      } finally {
         setLoading(false);
       }
     };
@@ -82,9 +80,10 @@ export default function PropertyUnitPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 text-white">
-      <div className="bg-black rounded-xl shadow-lg p-6">
+      <div className="bg-white text-black rounded-xl shadow-lg p-6 border border-gray-200">
+
         <div className="flex justify-between items-center mb-4 border-b border-white pb-4">
-          <h2 className="text-3xl font-bold">Unit: {unitData.unit_number}</h2>
+          <h2 className="text-3xl font-bold underline">Unit: {unitData.unit_number}</h2>
           <div className="flex gap-2">
             {current_lease ? (
               <>
@@ -96,7 +95,7 @@ export default function PropertyUnitPage() {
                 </button>
               </>
             ) : (
-              <button className="btn btn-outline btn-success" onClick={() => setShowAssignModal(true)}>
+              <button className="btn- btn-neutral hover:bg-[#1e40af] text-white rounded-md" onClick={() => setShowAssignModal(true)}>
                 Assign Tenant
               </button>
             )}
@@ -176,7 +175,6 @@ export default function PropertyUnitPage() {
             onSubmit={handleRecordPayment}
             lease={current_lease}
           />
-
           <LeaseEndModal
             show={showEndLeaseModal}
             onHide={() => setShowEndLeaseModal(false)}
