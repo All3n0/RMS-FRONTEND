@@ -49,7 +49,9 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
   const [adminName, setAdminName] = useState('Admin');
+  console.log('cookie', Cookies.get('user'));
 
   useEffect(() => {
     const fetchDashboardData = async () => {
