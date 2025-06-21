@@ -47,17 +47,24 @@ export default function PropertyUnitPage() {
   };
 
   const handleRecordPayment = async (paymentData) => {
-    try {
-      const response = await axios.post(`http://127.0.0.1:5556/units/${unitId}/record-payment`, paymentData);
-      setUnit(prev => ({
-        ...prev,
-        payment_history: [response.data.payment, ...prev.payment_history],
-      }));
-      setShowPaymentModal(false);
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to record payment');
-    }
-  };
+  try {
+    const response = await axios.post(`http://127.0.0.1:5556/units/${unitId}/record-payment`, paymentData);
+    
+    const newPayment = response.data.payment;
+    const status = response.data.payment_status;
+
+    setUnit(prev => ({
+      ...prev,
+      payment_history: [newPayment, ...prev.payment_history],
+      payment_status: status
+    }));
+
+    setShowPaymentModal(false);
+  } catch (err) {
+    alert(err.response?.data?.error || 'Failed to record payment');
+  }
+};
+
 
   const handleEndLease = async (endDate) => {
     try {
@@ -160,6 +167,17 @@ export default function PropertyUnitPage() {
       ))}
     </tbody>
   </table>
+  {unit.payment_status && (
+  <div className="mt-6 text-black bg-gray-100 p-4 rounded-md border border-gray-300">
+    <h4 className="font-bold text-lg mb-2">Payment Summary</h4>
+    <p><span className="font-semibold">Months Since Lease Started:</span> {unit.payment_status.total_months}</p>
+    <p><span className="font-semibold">Total Rent Expected:</span> ${unit.payment_status.expected_total_rent}</p>
+    <p><span className="font-semibold">Total Paid:</span> ${unit.payment_status.total_paid}</p>
+    <p><span className="font-semibold">Balance Due:</span> ${unit.payment_status.balance_due}</p>
+    <p><span className="font-semibold">Months Behind:</span> {unit.payment_status.months_behind} month(s)</p>
+  </div>
+)}
+
 </div>
         )}
       </div>
