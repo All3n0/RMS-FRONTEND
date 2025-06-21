@@ -132,31 +132,35 @@ export default function PropertyUnitPage() {
         )}
 
         {payment_history?.length > 0 && (
-          <div className="mt-6 overflow-x-auto">
-            <h3 className="text-xl font-semibold mb-2">Payment History</h3>
-            <table className="table table-zebra w-full text-white">
-              <thead>
-                <tr>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Payment Date</th>
-                  <th>Method</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payment_history.map((payment) => (
-                  <tr key={payment.payment_id}>
-                    <td>{new Date(payment.period_start).toLocaleDateString()} - {new Date(payment.period_end).toLocaleDateString()}</td>
-                    <td>${payment.amount.toFixed(2)}</td>
-                    <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
-                    <td>{payment.payment_method}</td>
-                    <td>{payment.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+<div className="mt-6 overflow-x-auto">
+  <h3 className="text-xl font-semibold mb-2 text-black underline">Payment History</h3>
+  <table className="w-full border border-gray-300 rounded-md overflow-hidden">
+    <thead className="bg-white text-black">
+      <tr>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Period</th>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Amount</th>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Payment Date</th>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Method</th>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Reference</th>
+        <th className="py-2 px-4 border-b border-gray-300 text-left">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {payment_history.map((payment) => (
+        <tr key={payment.payment_id} className="bg-white border-b border-gray-200">
+          <td className="py-2 px-4 text-black">
+            {new Date(payment.period_start).toLocaleDateString()} - {new Date(payment.period_end).toLocaleDateString()}
+          </td>
+          <td className="py-2 px-4 text-black">${payment.amount.toFixed(2)}</td>
+          <td className="py-2 px-4 text-black">{new Date(payment.payment_date).toLocaleDateString()}</td>
+          <td className="py-2 px-4 text-black">{payment.payment_method.replace('_', ' ')}</td>
+          <td className="py-2 px-4 text-black">{payment.transaction_reference_number || 'N/A'}</td>
+          <td className="py-2 px-4 text-black">{payment.status}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
         )}
       </div>
 
