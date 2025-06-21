@@ -67,9 +67,10 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
           {/* Body */}
           <div className="p-4 overflow-y-auto flex-1 space-y-4">
             {/* Use existing toggle */}
-            <label className="flex items-center gap-2 font-large">
+            <label className="flex items-center gap-2 font-large" style={{color:'black'}}>
               <input style={{color:"black"}}
                 type="checkbox"
+                
                 checked={formData.use_existing}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -104,6 +105,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="first_name"
                       value={formData.first_name}
                       onChange={handleChange}
+                      placeholder='EG: John'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -115,6 +117,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="last_name"
                       value={formData.last_name}
                       onChange={handleChange}
+                      placeholder='EG: Doe'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -129,6 +132,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      placeholder='EG: Johndoe@example.com'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -140,6 +144,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
+                      placeholder='EG: 123-456-7890'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -153,6 +158,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                     onChange={(date) => handleDateChange(date, 'date_of_birth')}
                     className="w-full border rounded-md px-3 py-2"
                     dateFormat="yyyy-MM-dd"
+                    placeholderText="YYYY-MM-DD"
                     required
                   />
                 </div>
@@ -165,6 +171,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="emergency_contact_name"
                       value={formData.emergency_contact_name}
                       onChange={handleChange}
+                      placeholder='EG: Jane Doe'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -176,6 +183,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                       name="emergency_contact_number"
                       value={formData.emergency_contact_number}
                       onChange={handleChange}
+                      placeholder='EG: 123-456-7890'
                       className="w-full border rounded-md px-3 py-2"
                       required
                     />
@@ -191,6 +199,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                 onChange={(date) => handleDateChange(date, 'move_in_date')}
                 className="w-full border rounded-md px-3 py-2"
                 dateFormat="yyyy-MM-dd"
+                placeholderText="YYYY-MM-DD"
                 required
               />
             </div>
@@ -203,6 +212,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                   onChange={(date) => handleDateChange(date, 'lease_start')}
                   className="w-full border rounded-md px-3 py-2"
                   dateFormat="yyyy-MM-dd"
+                  placeholderText="YYYY-MM-DD"
                   required
                 />
               </div>
@@ -213,6 +223,7 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
                   onChange={(date) => handleDateChange(date, 'lease_end')}
                   className="w-full border rounded-md px-3 py-2"
                   dateFormat="yyyy-MM-dd"
+                  placeholderText="YYYY-MM-DD"
                   required
                 />
               </div>
