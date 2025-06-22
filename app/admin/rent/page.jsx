@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { styled } from '@mui/material/styles';
 import {
   Box,
   Typography,
@@ -28,7 +29,8 @@ import {
   DialogContent,
   DialogActions,
   Collapse,
-  Divider
+  Divider,
+  Alert
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -45,13 +47,66 @@ const statusOptions = [
   { value: 'refunded', label: 'Refunded' },
 ];
 
+// Radial Progress Components
+const RadialContainer = styled('div')({
+  position: 'relative',
+  width: '220px',
+  height: '220px',
+  margin: '20px auto',
+  backgroundColor: 'white',
+  borderRadius: '50%',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+});
+
+const OuterProgress = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  borderRadius: '50%',
+  backgroundColor: theme.palette.grey[100],
+  transition: 'background 1.5s ease-out'
+}));
+
+const InnerProgress = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  width: '70%',
+  height: '70%',
+  top: '15%',
+  left: '15%',
+  borderRadius: '50%',
+  backgroundColor: 'transparent',
+  transform: 'rotate(180deg)',
+  transition: 'background 1.5s ease-out'
+}));
+
+const RadialCenter = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  width: '60%',
+  height: '60%',
+  top: '20%',
+  left: '20%',
+  borderRadius: '50%',
+  backgroundColor: 'white',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxShadow: theme.shadows[1],
+  zIndex: 3
+}));
+
 export default function RentManagementPage() {
   const router = useRouter();
   const [admin, setAdmin] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
-
-  // Filter states
+  const [rentStats, setRentStats] = useState({
+    collected: 0,
+    expected: 0,
+    percentage: 0
+  });
+  const outerProgressRef = useRef(null);
+  const innerProgressRef = useRef(null);
   const [filters, setFilters] = useState({
     search: '',
     tenantName: '',
@@ -62,38 +117,26 @@ export default function RentManagementPage() {
     startDate: null,
     endDate: null
   });
-
-  // Data states
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  // Check authentication on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const userCookie = Cookies.get('user');
-        console.log(userCookie);
         if (!userCookie) {
-          console.log('No user cookie found');
           router.push('/login');
           return;
         }
 
         const userData = JSON.parse(userCookie);
-        console.log('User data:', userData);
-if (!userData?.user_id) {
-  console.log('User not authenticated');
-  router.push('/login');
-  return;
-}
-if (userData.role !== 'admin') {
-  console.log('User is not admin');
-  router.push('/login');
-  return;
-}
+        if (!userData?.user_id || userData.role !== 'admin') {
+          router.push('/login');
+          return;
+        }
         setAdmin(userData);
         setInitialLoad(false);
       } catch (err) {
@@ -105,12 +148,59 @@ if (userData.role !== 'admin') {
     checkAuth();
   }, [router]);
 
-  // Fetch payments when filters change or admin is set
   useEffect(() => {
     if (admin?.user_id) {
       fetchPayments();
+      fetchRentStats();
     }
   }, [admin, filters]);
+
+  useEffect(() => {
+    // Animate the radial progress when rentStats are updated
+    if (rentStats.percentage > 0 && outerProgressRef.current && innerProgressRef.current) {
+      const outerDegrees = (rentStats.percentage / 100) * 360;
+      const innerDegrees = (rentStats.percentage / 100) * 360;
+      
+      // Outer circle (blue) - expected rent - animates clockwise
+      outerProgressRef.current.style.background = 
+        `conic-gradient(#1976d2 0deg, transparent 0deg)`;
+      
+      // Inner circle (grey) - collected rent - animates counter-clockwise
+      innerProgressRef.current.style.background = 
+        `conic-gradient(#9e9e9e 0deg, transparent 0deg)`;
+      
+      setTimeout(() => {
+        outerProgressRef.current.style.background = 
+          `conic-gradient(#1976d2 ${outerDegrees}deg, transparent 0deg)`;
+        
+        innerProgressRef.current.style.background = 
+          `conic-gradient(#9e9e9e ${innerDegrees}deg, transparent 0deg)`;
+      }, 50);
+    }
+  }, [rentStats]);
+
+  const fetchRentStats = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5556/admin/rent-payments/${admin.user_id}/stats`,
+        { 
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setRentStats({
+          collected: data.collected || 0,
+          expected: data.expected || 0,
+          percentage: data.percentage || 0
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching rent stats:', err);
+    }
+  };
 
   const fetchPayments = async () => {
     try {
@@ -131,24 +221,14 @@ if (userData.role !== 'admin') {
         `http://127.0.0.1:5556/admin/rent-payments/${admin.user_id}?${params.toString()}`,
         { 
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          }
+          headers: { 'Content-Type': 'application/json' }
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(await response.text());
       const data = await response.json();
-
-      if (data.success) {
-        setPayments(data.payments);
-      } else {
-        throw new Error(data.error || 'Failed to fetch payments');
-      }
+      if (data.success) setPayments(data.payments);
+      else throw new Error(data.error || 'Failed to fetch payments');
     } catch (err) {
       setError(err.message);
       console.error('Fetch error:', err);
@@ -232,6 +312,75 @@ if (userData.role !== 'admin') {
             }}
           />
         </Paper>
+
+        {/* Rent Stats Section */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 4,
+          mb: 4,
+          flexWrap: 'wrap'
+        }}>
+          <RadialContainer>
+            <OuterProgress ref={outerProgressRef} />
+            <InnerProgress ref={innerProgressRef} />
+            <RadialCenter>
+              <Typography variant="h4" fontWeight="bold">
+                {rentStats.percentage}%
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Rent Collected
+              </Typography>
+            </RadialCenter>
+          </RadialContainer>
+          
+          <Box sx={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            minWidth: '200px'
+          }}>
+            <Box>
+              <Typography variant="subtitle2" color="primary" gutterBottom>
+                Rent Summary
+              </Typography>
+              <Divider />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ 
+                    width: 12, 
+                    height: 12, 
+                    bgcolor: 'primary.main', 
+                    mr: 1, 
+                    borderRadius: '50%' 
+                  }} />
+                  <Typography variant="body2">Expected</Typography>
+                </Box>
+                <Typography variant="h6" fontWeight="medium">
+                  ${rentStats.expected.toFixed(2)}
+                </Typography>
+              </Box>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ 
+                    width: 12, 
+                    height: 12, 
+                    bgcolor: 'grey.500', 
+                    mr: 1, 
+                    borderRadius: '50%' 
+                  }} />
+                  <Typography variant="body2">Collected</Typography>
+                </Box>
+                <Typography variant="h6" fontWeight="medium">
+                  ${rentStats.collected.toFixed(2)}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
 
         {/* Filters Toggle */}
         <Box sx={{ mb: 2 }}>
@@ -380,8 +529,7 @@ if (userData.role !== 'admin') {
               alignItems: 'center',
               gap: 2
             }}>
-              <AlertCircle color="error" />
-              <Typography color="error">Error: {error}</Typography>
+              <Alert severity="error">{error}</Alert>
             </Box>
           ) : payments.length === 0 ? (
             <Box sx={{ 
