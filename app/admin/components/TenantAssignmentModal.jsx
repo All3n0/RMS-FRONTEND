@@ -31,8 +31,9 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
     setFormData((prev) => ({ ...prev, [field]: date }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {  // Add async here
+  e.preventDefault();
+  try {
     const data = {
       ...formData,
       date_of_birth: formData.date_of_birth?.toISOString().split('T')[0],
@@ -41,8 +42,17 @@ export default function TenantAssignmentModal({ show, onHide, onSubmit, unit }) 
       lease_end: formData.lease_end?.toISOString().split('T')[0],
       admin_id: parseInt(formData.admin_id),
     };
-    onSubmit(data);
-  };
+    const response = await onSubmit(data);
+    
+    // Show success message with password info if new tenant was created
+    if (!formData.use_existing && response.data) {
+      const defaultPassword = `${formData.first_name.toLowerCase().replace(/\s+/g, '')}@123`;
+      alert(`Tenant created successfully! Their temporary password is: ${defaultPassword}`);
+    }
+  } catch (error) {
+    console.error('Error assigning tenant:', error);
+  }
+};
 
   if (!show) return null;
 

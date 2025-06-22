@@ -26,12 +26,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Collapse,
+  Divider
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Search, FilterAlt, Clear, Receipt } from '@mui/icons-material';
+import { Search, FilterAlt, Clear, Receipt, ExpandMore, ExpandLess } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 
@@ -47,6 +49,7 @@ export default function RentManagementPage() {
   const router = useRouter();
   const [admin, setAdmin] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -72,18 +75,26 @@ export default function RentManagementPage() {
     const checkAuth = async () => {
       try {
         const userCookie = Cookies.get('user');
+        console.log(userCookie);
         if (!userCookie) {
+          console.log('No user cookie found');
           router.push('/login');
           return;
         }
 
         const userData = JSON.parse(userCookie);
-        if (userData?.user?.role !== 'admin') {
-          router.push('/login');
-          return;
-        }
-
-        setAdmin(userData.user);
+        console.log('User data:', userData);
+if (!userData?.user_id) {
+  console.log('User not authenticated');
+  router.push('/login');
+  return;
+}
+if (userData.role !== 'admin') {
+  console.log('User is not admin');
+  router.push('/login');
+  return;
+}
+        setAdmin(userData);
         setInitialLoad(false);
       } catch (err) {
         console.error('Authentication error:', err);
@@ -196,158 +207,217 @@ export default function RentManagementPage() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Rent Payments Management
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Welcome, {admin.username} ({admin.email})
-        </Typography>
-
-        {/* Filters Section */}
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Filters
+      <Box sx={{ p: { xs: 2, md: 3 }, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+        {/* Header Section */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 600, color: 'primary.main' }}>
+            Rent Payments
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Search"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                InputProps={{ endAdornment: <Search color="action" /> }}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Tenant Name"
-                value={filters.tenantName}
-                onChange={(e) => handleFilterChange('tenantName', e.target.value)}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Unit Name"
-                value={filters.unitName}
-                onChange={(e) => handleFilterChange('unitName', e.target.value)}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Property Name"
-                value={filters.propertyName}
-                onChange={(e) => handleFilterChange('propertyName', e.target.value)}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Reference Number"
-                value={filters.referenceNumber}
-                onChange={(e) => handleFilterChange('referenceNumber', e.target.value)}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={filters.status}
-                  label="Status"
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                >
-                  {statusOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <DatePicker
-                label="Start Date"
-                value={filters.startDate}
-                onChange={(date) => handleFilterChange('startDate', date)}
-                renderInput={(params) => <TextField fullWidth {...params} />}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <DatePicker
-                label="End Date"
-                value={filters.endDate}
-                onChange={(date) => handleFilterChange('endDate', date)}
-                renderInput={(params) => <TextField fullWidth {...params} />}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button
-                variant="outlined"
-                startIcon={<Clear />}
-                onClick={resetFilters}
-              >
-                Reset
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<FilterAlt />}
-                onClick={fetchPayments}
-                disabled={loading}
-              >
-                Apply Filters
-              </Button>
-            </Grid>
-          </Grid>
+          <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
+            Welcome back, <span style={{ fontWeight: 500 }}>{admin.username}</span>
+          </Typography>
+        </Box>
+
+        {/* Search Bar */}
+        <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Search payments..."
+            value={filters.search}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
+            InputProps={{
+              startAdornment: <Search color="action" sx={{ mr: 1 }} />,
+              sx: { borderRadius: 2 }
+            }}
+          />
         </Paper>
 
+        {/* Filters Toggle */}
+        <Box sx={{ mb: 2 }}>
+          <Button
+            startIcon={filtersOpen ? <ExpandLess /> : <ExpandMore />}
+            endIcon={<FilterAlt />}
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            sx={{ textTransform: 'none' }}
+          >
+            {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+          </Button>
+        </Box>
+
+        {/* Filters Section - Collapsible */}
+        <Collapse in={filtersOpen}>
+          <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <TextField
+                  fullWidth
+                  label="Tenant Name"
+                  size="small"
+                  value={filters.tenantName}
+                  onChange={(e) => handleFilterChange('tenantName', e.target.value)}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <TextField
+                  fullWidth
+                  label="Unit Name"
+                  size="small"
+                  value={filters.unitName}
+                  onChange={(e) => handleFilterChange('unitName', e.target.value)}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <TextField
+                  fullWidth
+                  label="Property Name"
+                  size="small"
+                  value={filters.propertyName}
+                  onChange={(e) => handleFilterChange('propertyName', e.target.value)}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <TextField
+                  fullWidth
+                  label="Reference Number"
+                  size="small"
+                  value={filters.referenceNumber}
+                  onChange={(e) => handleFilterChange('referenceNumber', e.target.value)}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={filters.status}
+                    label="Status"
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                  >
+                    {statusOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <DatePicker
+                  label="Start Date"
+                  value={filters.startDate}
+                  onChange={(date) => handleFilterChange('startDate', date)}
+                  renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <DatePicker
+                  label="End Date"
+                  value={filters.endDate}
+                  onChange={(date) => handleFilterChange('endDate', date)}
+                  renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 1 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<Clear />}
+                  onClick={resetFilters}
+                  size="small"
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<Search />}
+                  onClick={fetchPayments}
+                  disabled={loading}
+                  size="small"
+                >
+                  Search
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Collapse>
+
         {/* Results Section */}
-        <Paper sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">Payment Records</Typography>
+        <Paper sx={{ p: 2, borderRadius: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 2,
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: { xs: 2, sm: 0 }
+          }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Payment Records
+            </Typography>
             <Typography variant="body2" color="text.secondary">
-              {payments.length} records found
+              Showing {payments.length} records
             </Typography>
           </Box>
+
+          <Divider sx={{ mb: 3 }} />
 
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
               <CircularProgress />
             </Box>
           ) : error ? (
-            <Typography color="error" sx={{ p: 2 }}>Error: {error}</Typography>
+            <Box sx={{ 
+              p: 3, 
+              backgroundColor: 'error.light', 
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2
+            }}>
+              <AlertCircle color="error" />
+              <Typography color="error">Error: {error}</Typography>
+            </Box>
           ) : payments.length === 0 ? (
-            <Typography sx={{ p: 2 }}>No payments found</Typography>
+            <Box sx={{ 
+              p: 3, 
+              textAlign: 'center',
+              backgroundColor: 'action.hover',
+              borderRadius: 2
+            }}>
+              <Typography>No payments found matching your criteria</Typography>
+            </Box>
           ) : (
             <TableContainer>
-              <Table>
+              <Table sx={{ minWidth: 650 }} aria-label="payments table">
                 <TableHead>
-                  <TableRow>
-                    <TableCell>Tenant</TableCell>
-                    <TableCell>Unit</TableCell>
-                    <TableCell>Property</TableCell>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Payment Date</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
+                  <TableRow sx={{ backgroundColor: 'primary.light' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Tenant</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Unit</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {payments.map((payment) => (
-                    <TableRow key={payment.id}>
+                    <TableRow 
+                      key={payment.id}
+                      hover
+                      sx={{ 
+                        '&:last-child td, &:last-child th': { border: 0 },
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => viewPaymentDetails(payment)}
+                    >
                       <TableCell>{payment.tenant_name}</TableCell>
                       <TableCell>{payment.unit_name}</TableCell>
-                      <TableCell>{payment.property_name}</TableCell>
                       <TableCell>${payment.amount?.toFixed(2)}</TableCell>
                       <TableCell>{payment.payment_date}</TableCell>
                       <TableCell>
@@ -355,12 +425,22 @@ export default function RentManagementPage() {
                           label={payment.status}
                           color={getStatusColor(payment.status)}
                           size="small"
+                          sx={{ 
+                            fontWeight: 500,
+                            textTransform: 'capitalize'
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Tooltip title="View Details">
-                          <IconButton onClick={() => viewPaymentDetails(payment)}>
-                            <Receipt color="primary" />
+                      <TableCell align="right">
+                        <Tooltip title="View details">
+                          <IconButton 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              viewPaymentDetails(payment);
+                            }}
+                            size="small"
+                          >
+                            <Receipt fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
@@ -373,54 +453,84 @@ export default function RentManagementPage() {
         </Paper>
 
         {/* Payment Details Dialog */}
-        <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Payment Details</DialogTitle>
-          <DialogContent dividers>
+        <Dialog 
+          open={detailsOpen} 
+          onClose={() => setDetailsOpen(false)} 
+          maxWidth="sm" 
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 3 } }}
+        >
+          <DialogTitle sx={{ 
+            backgroundColor: 'primary.main', 
+            color: 'white',
+            fontWeight: 600
+          }}>
+            Payment Details
+          </DialogTitle>
+          <DialogContent dividers sx={{ p: 3 }}>
             {selectedPayment && (
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle1">Tenant</Typography>
+                  <Typography variant="subtitle1" fontWeight={500}>Tenant Information</Typography>
                   <Typography>
                     {selectedPayment.tenant_name} (ID: {selectedPayment.tenant_id})
                   </Typography>
                 </Grid>
+                
                 <Grid item xs={12}>
-                  <Typography variant="subtitle1">Property</Typography>
+                  <Typography variant="subtitle1" fontWeight={500}>Property Information</Typography>
                   <Typography>
                     {selectedPayment.unit_name}, {selectedPayment.property_name}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle1">Amount</Typography>
+                
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle1" fontWeight={500}>Amount</Typography>
                   <Typography>${selectedPayment.amount?.toFixed(2)}</Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle1">Method</Typography>
+                
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle1" fontWeight={500}>Payment Method</Typography>
                   <Typography>{selectedPayment.payment_method || 'N/A'}</Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle1">Date</Typography>
+                
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle1" fontWeight={500}>Payment Date</Typography>
                   <Typography>{selectedPayment.payment_date}</Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle1">Status</Typography>
+                
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle1" fontWeight={500}>Status</Typography>
                   <Chip
                     label={selectedPayment.status}
                     color={getStatusColor(selectedPayment.status)}
                     size="small"
+                    sx={{ fontWeight: 500 }}
                   />
                 </Grid>
+                
                 <Grid item xs={12}>
-                  <Typography variant="subtitle1">Reference</Typography>
-                  <Typography sx={{ fontFamily: 'monospace' }}>
+                  <Typography variant="subtitle1" fontWeight={500}>Reference Number</Typography>
+                  <Typography sx={{ 
+                    fontFamily: 'monospace',
+                    backgroundColor: 'action.hover',
+                    p: 1,
+                    borderRadius: 1
+                  }}>
                     {selectedPayment.reference_number}
                   </Typography>
                 </Grid>
               </Grid>
             )}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+          <DialogActions sx={{ p: 2 }}>
+            <Button 
+              onClick={() => setDetailsOpen(false)}
+              variant="contained"
+              sx={{ borderRadius: 2 }}
+            >
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>

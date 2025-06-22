@@ -21,7 +21,7 @@ export default function PropertyDetailPage() {
     const cookie = Cookies.get('user');
     if (cookie) {
       const user = JSON.parse(cookie);
-      setAdminId(user?.user?.user_id);
+      setAdminId(user?.user_id);
     }
   }, []);
 

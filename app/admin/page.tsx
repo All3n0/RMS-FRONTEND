@@ -62,8 +62,8 @@ export default function AdminDashboardPage() {
         }
 
         const userData = JSON.parse(userCookie);
-        const adminId = userData?.user?.user_id;
-        const name = userData?.user?.username;
+        const adminId = userData?.user_id;
+        const name = userData?.username;
 
         if (name) setAdminName(name);
         if (!adminId) {
