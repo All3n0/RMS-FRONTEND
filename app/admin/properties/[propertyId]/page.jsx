@@ -19,6 +19,7 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     const cookie = Cookies.get('user');
+    console.log(cookie)
     if (cookie) {
       const user = JSON.parse(cookie);
       setAdminId(user?.user_id);
@@ -61,35 +62,47 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleDeleteProperty = async () => {
-    if (!confirm('Are you sure you want to delete this property? This will PERMANENTLY delete the property and ALL its units.')) {
-      return;
+const handleDeleteProperty = async () => {
+  if (
+    !confirm(
+      'Are you sure you want to delete this property? This will PERMANENTLY delete the property and ALL its units.'
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const cookie = Cookies.get('user');
+    const user = JSON.parse(cookie);
+
+    // Check for user and admin role
+    if (!user?.user_id || user.role !== 'admin') {
+      throw new Error('Only admins can delete properties.');
     }
 
-    try {
-      const cookie = Cookies.get('user');
-      const user = JSON.parse(cookie)?.user;
-      if (!user?.user_id) throw new Error("Unauthorized");
+    const res = await fetch(`http://127.0.0.1:5556/properties/${propertyId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        // You can add custom headers if needed
+        'X-User-ID': user.user_id,
+        'X-User-Role': user.role,
+      },
+    });
 
-      const res = await fetch(`http://127.0.0.1:5556/properties/${propertyId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to delete property");
-      }
-
-      router.push('/admin/properties');
-    } catch (error) {
-      console.error("Error deleting property:", error.message);
-      alert("Failed to delete property: " + error.message);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to delete property');
     }
-  };
+
+    router.push('/admin/properties');
+  } catch (error) {
+    console.error('Error deleting property:', error.message);
+    alert('Failed to delete property: ' + error.message);
+  }
+};
+
+
 
   const handleUpdateProperty = async (updatedData) => {
     try {

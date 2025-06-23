@@ -24,9 +24,12 @@ export default function AddUnitPopup({ propertyId, onClose }) {
   const handleSubmit = async () => {
     try {
       const cookie = Cookies.get('user');
-      const user = JSON.parse(cookie)?.user;
+      const user = JSON.parse(cookie);
 
-      if (!user?.user_id) throw new Error("Admin ID missing from cookie");
+      if (!user?.user_id || user.role !== 'admin') {
+      setError('You must be logged in as an admin');
+      return;
+    }
 
       // If type is "other", use the other_type value
       const finalType = unit.type === 'other' ? unit.other_type : unit.type;

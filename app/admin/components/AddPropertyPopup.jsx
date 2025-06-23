@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 
 export default function AddPropertyPopup({ onClose }) {
   const [formData, setFormData] = useState({
+    property_name: '',
     address: '',
     city: '',
     state: '',
@@ -29,44 +30,56 @@ export default function AddPropertyPopup({ onClose }) {
   }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // ✅ Validation: Ensure all fields are filled
-    const { address, city, state, zip_code } = formData;
-    if (!address || !city || !state || !zip_code) {
-      setError('All fields are required');
+  const { property_name, address, city, state, zip_code } = formData;
+
+  // ✅ Field validation
+  if (!property_name||!address || !city || !state || !zip_code) {
+    setError('All fields are required');
+    return;
+  }
+
+  try {
+    const cookie = Cookies.get('user');
+    const user = JSON.parse(cookie);
+
+    // ✅ Admin check
+    if (!user?.user_id || user.role !== 'admin') {
+      setError('You must be logged in as an admin');
       return;
     }
 
-    if (!adminId) {
-      setError('You must be logged in as admin');
-      return;
+    const payload = {
+      ...formData,
+      admin_id: user.user_id, // ✅ Include admin_id in body
+    };
+
+    const res = await fetch('http://127.0.0.1:5556/properties', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-ID': user.user_id,
+        'X-User-Role': user.role,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log('Success:', data);
+      onClose(); // ✅ Close popup/modal
+      window.location.reload(); // ✅ Refresh to show new property
+    } else {
+      const errData = await res.json();
+      setError(errData?.error || 'Failed to create property');
+      console.error('Error creating property:', errData);
     }
-
-    const payload = { ...formData, admin_id: adminId };
-
-    try {
-      const res = await fetch('http://127.0.0.1:5556/properties', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        console.log('Success:', data);
-        onClose();          // Close the popup
-        window.location.reload(); // ✅ Refresh the page
-      } else {
-        const errData = await res.json();
-        setError(errData?.error || 'Failed to create property');
-        console.error('Error creating property:', errData);
-      }
-    } catch (err) {
-      setError('Request failed. Please try again.');
-      console.error('Request failed:', err);
-    }
-  };
+  } catch (err) {
+    setError('Request failed. Please try again.');
+    console.error('Request failed:', err);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
@@ -75,6 +88,15 @@ export default function AddPropertyPopup({ onClose }) {
 
         {/* ✅ Error Display */}
         {error && <p className="text-sm text-red-600">{error}</p>}
+        <label className="text-black">Property Name</label>
+        <input
+          type="text"
+          placeholder="Property Name"
+          value={formData.property_name}
+          onChange={(e) => setFormData({ ...formData, property_name: e.target.value })}
+          className="input input-bordered w-full"
+          required
+        />
         <label className="text-black">Address</label>
         <input
           type="text"

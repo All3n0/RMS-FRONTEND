@@ -105,6 +105,7 @@ export default function RentManagementPage() {
     expected: 0,
     percentage: 0
   });
+  const [availableMonths, setAvailableMonths] = useState([]);
   const outerProgressRef = useRef(null);
   const innerProgressRef = useRef(null);
   const [filters, setFilters] = useState({
@@ -114,6 +115,8 @@ export default function RentManagementPage() {
     propertyName: '',
     referenceNumber: '',
     status: '',
+    month: '',
+    year: '',
     startDate: null,
     endDate: null
   });
@@ -152,37 +155,14 @@ export default function RentManagementPage() {
     if (admin?.user_id) {
       fetchPayments();
       fetchRentStats();
+      fetchAvailableMonths();
     }
   }, [admin, filters]);
 
-  useEffect(() => {
-    // Animate the radial progress when rentStats are updated
-    if (rentStats.percentage > 0 && outerProgressRef.current && innerProgressRef.current) {
-      const outerDegrees = (rentStats.percentage / 100) * 360;
-      const innerDegrees = (rentStats.percentage / 100) * 360;
-      
-      // Outer circle (blue) - expected rent - animates clockwise
-      outerProgressRef.current.style.background = 
-        `conic-gradient(#1976d2 0deg, transparent 0deg)`;
-      
-      // Inner circle (grey) - collected rent - animates counter-clockwise
-      innerProgressRef.current.style.background = 
-        `conic-gradient(#9e9e9e 0deg, transparent 0deg)`;
-      
-      setTimeout(() => {
-        outerProgressRef.current.style.background = 
-          `conic-gradient(#1976d2 ${outerDegrees}deg, transparent 0deg)`;
-        
-        innerProgressRef.current.style.background = 
-          `conic-gradient(#9e9e9e ${innerDegrees}deg, transparent 0deg)`;
-      }, 50);
-    }
-  }, [rentStats]);
-
-  const fetchRentStats = async () => {
+  const fetchAvailableMonths = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5556/admin/rent-payments/${admin.user_id}/stats`,
+        `http://127.0.0.1:5556/admin/rent-payments/${admin.user_id}/months`,
         { 
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' }
@@ -191,16 +171,66 @@ export default function RentManagementPage() {
       
       if (response.ok) {
         const data = await response.json();
-        setRentStats({
-          collected: data.collected || 0,
-          expected: data.expected || 0,
-          percentage: data.percentage || 0
-        });
+        setAvailableMonths(data.months || []);
       }
     } catch (err) {
-      console.error('Error fetching rent stats:', err);
+      console.error('Error fetching available months:', err);
     }
   };
+
+ useEffect(() => {
+  if (rentStats.percentage > 0 && outerProgressRef.current && innerProgressRef.current) {
+    const outerDegrees = Math.min((rentStats.percentage / 100) * 360, 360);
+    const innerDegrees = Math.min((rentStats.percentage / 100) * 360, 360);
+    
+    // Reset to initial state
+    outerProgressRef.current.style.background = 
+      `conic-gradient(#1976d2 0deg, transparent 0deg)`;
+    innerProgressRef.current.style.background = 
+      `conic-gradient(#9e9e9e 0deg, transparent 0deg)`;
+    
+    // Force repaint before animation
+    outerProgressRef.current.getBoundingClientRect();
+    innerProgressRef.current.getBoundingClientRect();
+    
+    // Animate to target state
+    setTimeout(() => {
+      outerProgressRef.current.style.background = 
+        `conic-gradient(#1976d2 ${outerDegrees}deg, transparent 0deg)`;
+      innerProgressRef.current.style.background = 
+        `conic-gradient(#9e9e9e ${innerDegrees}deg, transparent 0deg)`;
+    }, 50);
+  }
+}, [rentStats]);
+  const fetchRentStats = async () => {
+  try {
+    const params = new URLSearchParams();
+    if (filters.month) params.append('month', filters.month.split('-')[1]);
+    if (filters.year) params.append('year', filters.year);
+    if (filters.startDate) params.append('start_date', dayjs(filters.startDate).format('YYYY-MM-DD'));
+    if (filters.endDate) params.append('end_date', dayjs(filters.endDate).format('YYYY-MM-DD'));
+
+    const response = await fetch(
+      `http://127.0.0.1:5556/admin/rent-payments/${admin.user_id}/stats?${params.toString()}`,
+      { 
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Rent stats:', data);
+      setRentStats({
+        collected: data.collected || 0,
+        expected: data.expected || 0,
+        percentage: data.percentage || 0
+      });
+    }
+  } catch (err) {
+    console.error('Error fetching rent stats:', err);
+  }
+};
 
   const fetchPayments = async () => {
     try {
@@ -214,6 +244,8 @@ export default function RentManagementPage() {
       if (filters.propertyName) params.append('property_name', filters.propertyName);
       if (filters.referenceNumber) params.append('reference_number', filters.referenceNumber);
       if (filters.status) params.append('status', filters.status);
+      if (filters.month) params.append('month', filters.month.split('-')[1]);
+      if (filters.year) params.append('year', filters.year);
       if (filters.startDate) params.append('start_date', dayjs(filters.startDate).format('YYYY-MM-DD'));
       if (filters.endDate) params.append('end_date', dayjs(filters.endDate).format('YYYY-MM-DD'));
 
@@ -249,6 +281,8 @@ export default function RentManagementPage() {
       propertyName: '',
       referenceNumber: '',
       status: '',
+      month: '',
+      year: '',
       startDate: null,
       endDate: null
     });
@@ -454,6 +488,24 @@ export default function RentManagementPage() {
                   </Select>
                 </FormControl>
               </Grid>
+
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Month</InputLabel>
+                  <Select
+                    value={filters.month}
+                    label="Month"
+                    onChange={(e) => handleFilterChange('month', e.target.value)}
+                  >
+                    <MenuItem value="">All Months</MenuItem>
+                    {availableMonths.map((month) => (
+                      <MenuItem key={month} value={month}>
+                        {month}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
               
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <DatePicker
@@ -548,6 +600,7 @@ export default function RentManagementPage() {
                     <TableCell sx={{ fontWeight: 600 }}>Tenant</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Unit</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Month</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
@@ -556,7 +609,7 @@ export default function RentManagementPage() {
                 <TableBody>
                   {payments.map((payment) => (
                     <TableRow 
-                      key={payment.id}
+                      key={payment.payment_id}
                       hover
                       sx={{ 
                         '&:last-child td, &:last-child th': { border: 0 },
@@ -567,6 +620,7 @@ export default function RentManagementPage() {
                       <TableCell>{payment.tenant_name}</TableCell>
                       <TableCell>{payment.unit_name}</TableCell>
                       <TableCell>${payment.amount?.toFixed(2)}</TableCell>
+                      <TableCell>{payment.payment_month}</TableCell>
                       <TableCell>{payment.payment_date}</TableCell>
                       <TableCell>
                         <Chip
@@ -643,6 +697,11 @@ export default function RentManagementPage() {
                 </Grid>
                 
                 <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle1" fontWeight={500}>Payment Month</Typography>
+                  <Typography>{selectedPayment.payment_month}</Typography>
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
                   <Typography variant="subtitle1" fontWeight={500}>Payment Date</Typography>
                   <Typography>{selectedPayment.payment_date}</Typography>
                 </Grid>
@@ -665,7 +724,7 @@ export default function RentManagementPage() {
                     p: 1,
                     borderRadius: 1
                   }}>
-                    {selectedPayment.reference_number}
+                    {selectedPayment.transaction_reference_number}
                   </Typography>
                 </Grid>
               </Grid>
