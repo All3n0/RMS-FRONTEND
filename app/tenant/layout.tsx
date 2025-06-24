@@ -1,5 +1,9 @@
 import TenantNavbar from './components/TenantNavbar';
 import TenantFooter from './components/TenantFooter';
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+/>
 
 export default function TenantLayout({ children }: { children: React.ReactNode }) {
   return (

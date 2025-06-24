@@ -1,5 +1,8 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
 
 export const metadata: Metadata = {
   title: 'Remy - Property Management',

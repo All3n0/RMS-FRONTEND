@@ -72,35 +72,37 @@ export default function TenantDashboard() {
             </div>
           </div>
           <h2 className="text-2xl font-semibold">{fullName}</h2>
-<div className={`w-full h-5 rounded-full mt-2 ${payment_status.current_month_paid ? 'bg-green-200' : 'bg-red-200'}`}>
-  <div className={`h-full rounded-full text-center text-xs font-semibold ${payment_status.current_month_paid ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`} style={{ width: '100%' }}>
-    {payment_status.current_month_paid ? 'Rent paid' : 'Rent due'}
-  </div>
-</div>
 
-          <div className="mt-4 space-y-2">
-  <div className="flex items-center text-gray-700">
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M2.94 6.94a7.5 7.5 0 1110.12 10.12L10 16.94l-2.06-2.06a7.5 7.5 0 01-5-7.94zM10 10a2 2 0 100-4 2 2 0 000 4z" />
-    </svg>
-    <p>{tenant.email}</p>
-  </div>
+          <div className={`w-full h-5 rounded-full mt-2 ${payment_status.current_month_paid ? 'bg-green-200' : 'bg-red-200'}`}>
+            <div
+              className={`h-full rounded-full text-center text-xs font-semibold ${payment_status.current_month_paid ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+              style={{ width: '100%' }}
+            >
+              {payment_status.current_month_paid ? 'Rent paid' : 'Rent due'}
+            </div>
+          </div>
 
-  <div className="flex items-center text-gray-700">
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M2 3.5A1.5 1.5 0 013.5 2h13A1.5 1.5 0 0118 3.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 16.5v-13zM4 5h12v1H4V5zm0 3h12v1H4V8zm0 3h8v1H4v-1z" clipRule="evenodd" />
-    </svg>
-    <p>{tenant.phone}</p>
-  </div>
-</div>
-
+          <div className="mt-4 space-y-2 w-full text-left">
+            <div className="flex items-center gap-2 text-gray-700">
+              <i className="bi bi-envelope-fill text-blue-500"></i>
+              <p>{tenant.email}</p>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
+              <i className="bi bi-telephone-fill text-green-500"></i>
+              <p>{tenant.phone}</p>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
+              <i className="bi bi-person-lines-fill text-purple-500"></i>
+              <p>{tenant.emergency_contact_name} ({tenant.emergency_contact_number})</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Property Info */}
       <div className="card bg-white shadow-lg rounded-lg mb-6 p-6">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <span className="material-icons">home</span> Your Property
+          <i className="bi bi-house-door-fill text-blue-600"></i> Your Property
         </h2>
         <p>{property.address}</p>
         <p><strong>Type:</strong> {unit.type}</p>
@@ -111,7 +113,7 @@ export default function TenantDashboard() {
 
       {/* Payment Info */}
       <div className="card bg-white shadow-lg rounded-lg mb-6 p-6">
-        <h2 className="text-xl font-bold mb-4">💲 Payment Information</h2>
+        <h2 className="text-xl font-bold mb-4"><i className="bi bi-cash-coin text-green-600"></i> Payment Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-green-100 rounded-lg p-4 text-center">
             <p className="text-xl font-semibold text-green-600">${lease.monthly_rent.toFixed(2)}</p>
@@ -130,8 +132,8 @@ export default function TenantDashboard() {
 
       {/* Lease Details */}
       <div className="card bg-white shadow-lg rounded-lg mb-6 p-6">
-        <h2 className="text-xl font-bold mb-4">📅 Lease Details</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <h2 className="text-xl font-bold mb-4"><i className="bi bi-calendar-check-fill text-indigo-600"></i> Lease Details</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
           <div>
             <p><strong>Lease Start:</strong> {formatDate(lease.start_date)}</p>
           </div>
@@ -142,8 +144,8 @@ export default function TenantDashboard() {
       </div>
 
       {/* Recent Payments */}
-      <div className="card bg-white shadow-lg rounded-lg mb-6 p-6">
-        <h2 className="text-xl font-bold mb-4">⏱ Recent Payments</h2>
+      <div className="card bg-white shadow-lg rounded-lg mb-6 p-10">
+        <h2 className="text-xl font-bold mb-4"><i className="bi bi-clock-history text-orange-500"></i> Recent Payments</h2>
         {payments.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="table w-full">
@@ -177,23 +179,34 @@ export default function TenantDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="card bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4">⚡ Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="btn btn-neutral w-full">
-            📤 Make Payment
-          </button>
-          <button className="btn btn-outline w-full">
-            ✉️ Contact Landlord
-          </button>
-          <button className="btn btn-outline w-full">
-            🛠️ Schedule Maintenance
-          </button>
-          <button className="btn btn-outline w-full">
-            📄 View Lease Document
-          </button>
-        </div>
-      </div>
+<div className="card bg-white shadow-lg rounded-lg p-6">
+  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+    <i className="bi bi-lightning-fill text-yellow-500"></i> Quick Actions
+  </h2>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <button className="btn btn-neutral w-full flex items-center justify-center gap-2 px-4 py-3 text-sm">
+      <i className="bi bi-credit-card text-base"></i>
+      <span className="text-center">Make Payment</span>
+    </button>
+
+    <button className="btn btn-outline w-full flex items-center justify-center gap-2 px-4 py-3 text-sm">
+      <i className="bi bi-envelope-check text-base"></i>
+      <span className="text-center">Contact Landlord</span>
+    </button>
+
+    <button className="btn btn-outline w-full flex items-center justify-center gap-2 px-4 py-3 text-sm">
+      <i className="bi bi-tools text-base"></i>
+      <span className="text-center">Maintenance</span>
+    </button>
+
+    <button className="btn btn-outline w-full flex items-center justify-center gap-2 px-4 py-3 text-sm">
+      <i className="bi bi-file-earmark-text text-base"></i>
+      <span className="text-center">Lease Document</span>
+    </button>
+  </div>
+</div>
+
     </div>
   );
 }

@@ -17,6 +17,7 @@
     "@mui/x-date-pickers": "^8.5.3",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
     "cookies-next": "^6.0.0",
     "dayjs": "^1.11.13",
     "js-cookie": "^3.0.5",
