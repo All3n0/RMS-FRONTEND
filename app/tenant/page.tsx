@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
+import MaintenanceRequestForm from './components/MaintainanceRequestForm';
 export default function TenantDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showMaintenanceForm, setShowMaintenanceForm] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -195,7 +196,7 @@ export default function TenantDashboard() {
       <span className="text-center">Contact Landlord</span>
     </button>
 
-    <button className="btn btn-outline w-full flex items-center justify-center gap-2 px-4 py-3 text-sm">
+    <button className="btn btn-outline w-full flex items-center justify-center gap-2 px-4 py-3 text-sm" onClick={() => setShowMaintenanceForm(true)}>
       <i className="bi bi-tools text-base"></i>
       <span className="text-center">Maintenance</span>
     </button>
@@ -207,6 +208,25 @@ export default function TenantDashboard() {
   </div>
 </div>
 
+{/* Maintenance Form Popup */}
+{showMaintenanceForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative">
+      <button
+        className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+        onClick={() => setShowMaintenanceForm(false)}
+      >
+        <i className="bi bi-x-lg"></i>
+      </button>
+      <MaintenanceRequestForm
+        onSuccess={() => {
+          setShowMaintenanceForm(false);
+        }}
+        onCancel={() => setShowMaintenanceForm(false)}
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 }
