@@ -28,6 +28,7 @@
     "react-bootstrap": "^2.10.10",
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
+    "react-phone-input-2": "^2.15.1",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {

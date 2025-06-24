@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'react-phone-input-2/lib/style.css';
 
 
 
