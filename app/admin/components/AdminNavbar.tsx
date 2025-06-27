@@ -8,7 +8,8 @@ import {
   BuildingIcon,
   CreditCardIcon,
   SettingsIcon,
-  LogOutIcon
+  LogOutIcon,
+  WrenchIcon
 } from 'lucide-react';
 
 export default function AdminNavbar() {
@@ -36,6 +37,7 @@ export default function AdminNavbar() {
           <SidebarLink href="/admin" label="Dashboard" icon={<HomeIcon className="w-5 h-5" />} expanded={expanded} />
           <SidebarLink href="/admin/properties" label="Properties" icon={<BuildingIcon className="w-5 h-5" />} expanded={expanded} />
           <SidebarLink href="/admin/rent" label="Rent" icon={<CreditCardIcon className="w-5 h-5" />} expanded={expanded} />
+          <SidebarLink href="/admin/maintenance" label="Maintenance" icon={<WrenchIcon className="w-5 h-5" />} expanded={expanded} />
           <SidebarLink href="/admin/settings" label="Settings" icon={<SettingsIcon className="w-5 h-5" />} expanded={expanded} />
         </nav>
       </div>

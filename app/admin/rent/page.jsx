@@ -32,6 +32,8 @@ import {
   Divider,
   Alert
 } from '@mui/material';
+import { Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
+
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -202,6 +204,27 @@ export default function RentManagementPage() {
     }, 50);
   }
 }, [rentStats]);
+const updatePaymentStatus = async (paymentId, newStatus) => {
+  try {
+    const res = await fetch(`http://127.0.0.1:5556/admin/rent-payments/${paymentId}/status`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update status');
+
+    alert(`✅ Payment marked as ${newStatus}`);
+    fetchPayments();       // Refresh list
+    fetchRentStats();      // Recalculate radial stats
+  } catch (err) {
+    console.error(err);
+    alert(`❌ Error: ${err.message}`);
+  }
+};
+
   const fetchRentStats = async () => {
   try {
     const params = new URLSearchParams();
@@ -391,9 +414,9 @@ export default function RentManagementPage() {
                     mr: 1, 
                     borderRadius: '50%' 
                   }} />
-                  <Typography variant="body2">Expected</Typography>
+                  <Typography variant="body2 textPrimary text-black">Expected</Typography>
                 </Box>
-                <Typography variant="h6" fontWeight="medium">
+                <Typography variant="h6 textsecondary italic text-black" fontWeight="medium">
                   ${rentStats.expected.toFixed(2)}
                 </Typography>
               </Box>
@@ -406,9 +429,9 @@ export default function RentManagementPage() {
                     mr: 1, 
                     borderRadius: '50%' 
                   }} />
-                  <Typography variant="body2">Collected</Typography>
+                  <Typography variant="body2 textPrimary text-black">Collected</Typography>
                 </Box>
-                <Typography variant="h6" fontWeight="medium">
+                <Typography variant="h6 textsecondary italic text-black" fontWeight="medium">
                   ${rentStats.collected.toFixed(2)}
                 </Typography>
               </Box>
@@ -622,17 +645,32 @@ export default function RentManagementPage() {
                       <TableCell>${payment.amount?.toFixed(2)}</TableCell>
                       <TableCell>{payment.payment_month}</TableCell>
                       <TableCell>{payment.payment_date}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={payment.status}
-                          color={getStatusColor(payment.status)}
-                          size="small"
-                          sx={{ 
-                            fontWeight: 500,
-                            textTransform: 'capitalize'
-                          }}
-                        />
-                      </TableCell>
+                      <TableCell align="right">
+  {payment.status === 'pending' ? (
+    <>
+      <Tooltip title="Mark as Paid">
+        <IconButton onClick={() => updatePaymentStatus(payment.payment_id, 'completed')}>
+          <CheckIcon color="success" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Reject Payment">
+        <IconButton onClick={() => updatePaymentStatus(payment.payment_id, 'rejected')}>
+          <CloseIcon color="error" />
+        </IconButton>
+      </Tooltip>
+    </>
+  ) : (
+    <Tooltip title="View details">
+      <IconButton onClick={(e) => {
+        e.stopPropagation();
+        viewPaymentDetails(payment);
+      }}>
+        <Receipt fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  )}
+</TableCell>
+
                       <TableCell align="right">
                         <Tooltip title="View details">
                           <IconButton 

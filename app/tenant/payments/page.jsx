@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PaymentForm from '../components/PaymentForm';
 
 export default function PaymentHistory() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,14 +48,23 @@ export default function PaymentHistory() {
     });
   };
 
-  if (loading) return <div className="p-6 text-center">Loading payment history...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
-
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 text-black">
-      <h1 className="text-4xl font-bold text-center mb-8">💳 Rent Payment History</h1>
+    <div className="max-w-5xl mx-auto px-4 py-10 text-black relative">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-bold">💳 Rent Payment History</h1>
+        <button
+          onClick={() => setShowForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          + Add Payment
+        </button>
+      </div>
 
-      {payments.length === 0 ? (
+      {loading ? (
+        <p className="text-center">Loading payment history...</p>
+      ) : error ? (
+        <p className="text-center text-red-600">Error: {error}</p>
+      ) : payments.length === 0 ? (
         <p className="text-center text-gray-600">No payment records available.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -72,17 +83,46 @@ export default function PaymentHistory() {
                 <tr key={payment.payment_id} className="hover:bg-gray-50">
                   <td>{formatDate(payment.payment_date)}</td>
                   <td>${payment.amount.toFixed(2)}</td>
-                  <td>{formatDate(payment.period_start)} - {formatDate(payment.period_end)}</td>
+                  <td>
+                    {formatDate(payment.period_start)} - {formatDate(payment.period_end)}
+                  </td>
                   <td className="capitalize">{payment.payment_method}</td>
                   <td>
-                    <span className={`badge ${payment.status.toLowerCase() === 'paid' ? 'badge-success' : 'badge-warning'}`}>
-                      {payment.status}
-                    </span>
+                    <span
+  className={`badge ${
+    payment.status.toLowerCase() === 'paid'
+      ? 'badge-success'
+      : payment.status.toLowerCase() === 'pending'
+      ? 'badge-warning'
+      : payment.status.toLowerCase() === 'declined'
+      ? 'badge-error'
+      : 'badge-ghost'
+  }`}
+>
+  {payment.status}
+</span>
+
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-xl relative shadow-lg">
+           <button
+  className="absolute top-3 right-3 text-blue-600 text-xl font-bold hover:scale-110 transition-all"style={{backgroundColor: 'transparent', border: 'none', cursor: 'pointer'}}
+  onClick={() => setShowForm(false)}
+>
+  ✖
+</button>
+
+            <h2 className="text-xl font-semibold mb-4 text-center">📥 File a Rent Payment</h2>
+            <PaymentForm onSuccess={() => setShowForm(false)} />
+          </div>
         </div>
       )}
     </div>

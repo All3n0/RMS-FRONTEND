@@ -1,14 +1,13 @@
-// // app/page.tsx or pages/index.tsx
-// import Navbar from '@/components/Navbar';
-// import HomePage from '@/components/HomePage';
-// import Features from '@/components/Features';
+// app/page.tsx
+import { redirect } from 'next/navigation';
 
-// export default function Home() {
-//   return (
-//     <main className="min-h-screen">
-//       <Navbar />
-//       <HomePage />
-//       <Features />
-//     </main>
-//   );
-// }
+export default function Home() {
+  redirect('/login');
+  
+  // The rest of this code won't execute
+  return (
+    <main className="min-h-screen">
+      {/* This content will never render */}
+    </main>
+  );
+}
