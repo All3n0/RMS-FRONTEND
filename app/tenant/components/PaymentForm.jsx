@@ -73,54 +73,55 @@ export default function PaymentForm({ onSuccess }) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-5 bg-white p-6 rounded-xl shadow-xl text-black"
+<form
+  onSubmit={handleSubmit}
+  className="space-y-5 bg-white p-6 rounded-xl shadow-xl text-black"
+>
+  <div>
+    <label className="block mb-1 font-semibold text-blue-600">Amount (KES)</label>
+    <input
+      type="number"
+      required
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+      className="w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm px-3 py-2"
+    />
+  </div>
+
+  <div>
+    <label className="block mb-1 font-semibold text-blue-600">Payment Method</label>
+    <select
+      value={paymentMethod}
+      onChange={(e) => setPaymentMethod(e.target.value)}
+      required
+      className="w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm px-3 py-2"
     >
-      <div>
-        <label className="block mb-1 font-semibold">Amount (KES)</label>
-        <input
-          type="number"
-          required
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="input w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
-        />
-      </div>
+      <option value="">-- Select Method --</option>
+      <option value="mpesa">Mpesa</option>
+      <option value="bank">Bank</option>
+      <option value="cash">Cash</option>
+    </select>
+  </div>
 
-      <div>
-        <label className="block mb-1 font-semibold">Payment Method</label>
-        <select
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-          required
-          className="select w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
-        >
-          <option value="">-- Select Method --</option>
-          <option value="mpesa">Mpesa</option>
-          <option value="bank">Bank</option>
-          <option value="cash">Cash</option>
-        </select>
-      </div>
+  <div>
+    <label className="block mb-1 font-semibold text-blue-600">Transaction Ref No.</label>
+    <input
+      type="text"
+      required
+      value={reference}
+      onChange={(e) => setReference(e.target.value)}
+      className="w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm px-3 py-2"
+    />
+  </div>
 
-      <div>
-        <label className="block mb-1 font-semibold">Transaction Ref No.</label>
-        <input
-          type="text"
-          required
-          value={reference}
-          onChange={(e) => setReference(e.target.value)}
-          className="input w-full rounded-lg border border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
-        />
-      </div>
+  <button
+    type="submit"
+    disabled={loading}
+    className="btn btn-outline w-full flex flex-col items-center justify-center gap-1 px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-blue-600 border-blue-600"
+  >
+    {loading ? 'Submitting...' : 'Submit Payment'}
+  </button>
+</form>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="btn w-full bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-md transition"
-      >
-        {loading ? 'Submitting...' : 'Submit Payment'}
-      </button>
-    </form>
   );
 }

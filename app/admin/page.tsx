@@ -323,7 +323,7 @@ function PaymentsCard({ payments }: { payments: PaymentItem[] }) {
                 <p className="text-sm md:text-base font-medium text-gray-900">${payment.amount.toLocaleString()}</p>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                   payment.status === 'paid' 
-                    ? 'bg-green-100 text-green-800' 
+                    ? 'bg-green-100 text-green-800 rounded-full' 
                     : payment.status === 'overdue' 
                       ? 'bg-red-100 text-red-800' 
                       : 'bg-yellow-100 text-yellow-800'

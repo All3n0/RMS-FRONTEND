@@ -51,7 +51,7 @@ export default function MaintenanceRequestForm({ onClose, onSuccess }) {
         <button type="button" onClick={onClose} className="btn btn-outline">
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
+        <button type="submit" className="btn btn-outline rounded-md border-blue-600 text-blue-600" disabled={submitting}>
           {submitting ? 'Submitting...' : 'Submit'}
         </button>
       </div>
