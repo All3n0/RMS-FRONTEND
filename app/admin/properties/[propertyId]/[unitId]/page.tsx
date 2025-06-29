@@ -85,23 +85,24 @@ export default function PropertyUnitPage() {
   const { unit: unitData, current_tenant, current_lease, payment_history } = unit;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
+    <div className="bg-white min-h-screen max-w-5xl mx-auto px-4 py-6 md:py-8">
+
       <div className="bg-white text-black rounded-lg md:rounded-xl shadow-md p-4 md:p-6 border border-gray-200">
 
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 pb-4 border-b border-gray-200 gap-3">
-          <h2 className="text-2xl md:text-3xl font-bold underline">Unit: {unitData.unit_number}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold underline text-blue-600">Unit: {unitData.unit_number}</h2>
           <div className="flex flex-wrap gap-2">
             {current_lease ? (
               <>
                 <button 
-                  className="btn btn-outline btn-primary text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
+                  className="btn btn-outline btn-primary rounded-md text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
                   onClick={() => setShowPaymentModal(true)}
                 >
                   Record Payment
                 </button>
                 <button 
-                  className="btn btn-outline btn-error text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
+                  className="btn btn-outline rounded-md btn-error text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
                   onClick={() => setShowEndLeaseModal(true)}
                 >
                   End Lease
@@ -109,7 +110,7 @@ export default function PropertyUnitPage() {
               </>
             ) : (
               <button 
-                className="btn btn-neutral text-white rounded-md text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
+                className="btn btn-outline border-blue-600 text-blue-600 rounded-md text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
                 onClick={() => setShowAssignModal(true)}
               >
                 Assign Tenant
@@ -123,10 +124,10 @@ export default function PropertyUnitPage() {
           <div>
             <h3 className="text-lg md:text-xl font-semibold mb-2">Unit Information</h3>
             <div className="space-y-2 text-sm md:text-base">
-              <p><span className="font-bold">Name:</span> {unitData.unit_name}</p>
-              <p><span className="font-bold">Status:</span> {unitData.status}</p>
-              <p><span className="font-bold">Monthly Rent:</span> ${unitData.monthly_rent.toFixed(2)}</p>
-              <p><span className="font-bold">Deposit:</span> ${unitData.deposit_amount.toFixed(2)}</p>
+              <p><span className="font-bold text-blue-600">Name:</span> {unitData.unit_name}</p>
+              <p><span className="font-bold text-blue-600">Status:</span> {unitData.status}</p>
+              <p><span className="font-bold text-blue-600">Monthly Rent:</span> ${unitData.monthly_rent.toFixed(2)}</p>
+              <p><span className="font-bold text-blue-600">Deposit:</span> ${unitData.deposit_amount.toFixed(2)}</p>
             </div>
           </div>
 

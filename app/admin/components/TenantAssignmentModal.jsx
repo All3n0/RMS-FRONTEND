@@ -259,13 +259,13 @@ const handleSubmit = async (e) => {  // Add async here
             <button
               type="button"
               onClick={onHide}
-              className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+              className="px-4 py-2 rounded-md border border-gray-300 hover:bg-black"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md"
+              className="px-4 py-2 hover:bg-blue-100 bg-white btn btn-rounded border-blue-600 text-blue-600 rounded-md"
             >
               Assign Tenant
             </button>

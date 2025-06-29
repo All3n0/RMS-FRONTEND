@@ -10,6 +10,8 @@ export default function AdminMaintenancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState({ type: '', message: '' });
+
   const router = useRouter();
 
   useEffect(() => {
@@ -90,11 +92,11 @@ export default function AdminMaintenancePage() {
           })
         )
       );
-      alert('✅ All updates saved successfully.');
       setOriginalRequests(JSON.parse(JSON.stringify(requests)));
+      setModal({ type: 'success', message: '✅ All updates saved successfully.' });
     } catch (err) {
       console.error('Error saving updates:', err);
-      alert('❌ Failed to save changes.');
+      setModal({ type: 'error', message: '❌ Failed to save changes.' });
     } finally {
       setSaving(false);
     }
@@ -102,7 +104,7 @@ export default function AdminMaintenancePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 bg-white min-h-screen text-gray-900">
-      <h1 className="text-3xl font-bold text-blue-600 mb-6 text-center">🔧 Maintenance Requests</h1>
+      <h1 className="text-3xl font-bold text-blue-600 mb-6 text-center underline">🔧 Maintenance Requests</h1>
 
       {loading ? (
         <p className="text-center text-gray-500">Loading...</p>
@@ -133,40 +135,37 @@ export default function AdminMaintenancePage() {
                     <td className="px-4 py-2 max-w-sm text-gray-800">{r.request_description}</td>
                     <td className="px-4 py-2">
                       <select
-  className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-  value={r.request_status}
-  onChange={(e) => handleChange(index, 'request_status', e.target.value)}
->
-  <option value="pending">pending</option>
-  <option value="in progress">in progress</option>
-  <option value="approved">approved</option>
-  <option value="completed">completed</option>
-  <option value="declined">declined</option>
-</select>
-
+                        className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        value={r.request_status}
+                        onChange={(e) => handleChange(index, 'request_status', e.target.value)}
+                      >
+                        <option value="pending">pending</option>
+                        <option value="in progress">in progress</option>
+                        <option value="approved">approved</option>
+                        <option value="completed">completed</option>
+                        <option value="declined">declined</option>
+                      </select>
                     </td>
                     <td className="px-4 py-2">
                       <select
-  className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-  value={r.request_priority}
-  onChange={(e) => handleChange(index, 'request_priority', e.target.value)}
->
-  <option value="low">low</option>
-  <option value="secondary">secondary</option>
-  <option value="high">high</option>
-  <option value="urgent">urgent</option>
-</select>
-
+                        className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        value={r.request_priority}
+                        onChange={(e) => handleChange(index, 'request_priority', e.target.value)}
+                      >
+                        <option value="low">low</option>
+                        <option value="secondary">secondary</option>
+                        <option value="high">high</option>
+                        <option value="urgent">urgent</option>
+                      </select>
                     </td>
                     <td className="px-4 py-2">{formatDate(r.request_date)}</td>
                     <td className="px-4 py-2">
                       <input
-  type="number"
-  className="w-24 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
-  value={r.cost !== null ? r.cost : ''}
-  onChange={(e) => handleChange(index, 'cost', e.target.value)}
-/>
-
+                        type="number"
+                        className="w-24 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
+                        value={r.cost !== null ? r.cost : ''}
+                        onChange={(e) => handleChange(index, 'cost', e.target.value)}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -176,7 +175,7 @@ export default function AdminMaintenancePage() {
 
           <div className="flex justify-end mt-6">
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded disabled:opacity-50"
+              className="btn  btn-outline border-blue-600 text-blue-600 font-semibold py-2 px-4 rounded disabled:opacity-50"
               onClick={handleSaveAll}
               disabled={saving}
             >
@@ -184,6 +183,28 @@ export default function AdminMaintenancePage() {
             </button>
           </div>
         </>
+      )}
+
+      {/* DaisyUI modal */}
+      {modal.message && (
+        <dialog id="alert_modal" className="modal modal-open">
+          <div className="modal-box rounded"style={{borderRadius: '10px'}}>
+            <h3 className={`font-bold text-lg ${modal.type === 'success' ? 'text-green-600' : 'text-red-600'} underline`}>
+              {modal.type === 'success' ? 'Success' : 'Error'}
+            </h3>
+            <p className="py-4">{modal.message}</p>
+            <div className="modal-action">
+              <form method="dialog">
+                <button
+                  className="btn btn-outline rounded-md border-blue-600 text-blue-600"
+                  onClick={() => setModal({ type: '', message: '' })}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
       )}
     </div>
   );
