@@ -14,6 +14,7 @@ export default function PropertyDetailPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [showEditPropertyPopup, setShowEditPropertyPopup] = useState(false);
   const [property, setProperty] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [adminId, setAdminId] = useState(null);
 
@@ -62,45 +63,45 @@ export default function PropertyDetailPage() {
     }
   };
 
-const handleDeleteProperty = async () => {
-  if (
-    !confirm(
-      'Are you sure you want to delete this property? This will PERMANENTLY delete the property and ALL its units.'
-    )
-  ) {
-    return;
-  }
+// const handleDeleteProperty = async () => {
+//   if (
+//     !confirm(
+//       'Are you sure you want to delete this property? This will PERMANENTLY delete the property and ALL its units.'
+//     )
+//   ) {
+//     return;
+//   }
 
-  try {
-    const cookie = Cookies.get('user');
-    const user = JSON.parse(cookie);
+//   try {
+//     const cookie = Cookies.get('user');
+//     const user = JSON.parse(cookie);
 
-    // Check for user and admin role
-    if (!user?.user_id || user.role !== 'admin') {
-      throw new Error('Only admins can delete properties.');
-    }
+//     // Check for user and admin role
+//     if (!user?.user_id || user.role !== 'admin') {
+//       throw new Error('Only admins can delete properties.');
+//     }
 
-    const res = await fetch(`http://127.0.0.1:5556/properties/${propertyId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        // You can add custom headers if needed
-        'X-User-ID': user.user_id,
-        'X-User-Role': user.role,
-      },
-    });
+//     const res = await fetch(`http://127.0.0.1:5556/properties/${propertyId}`, {
+//       method: 'DELETE',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         // You can add custom headers if needed
+//         'X-User-ID': user.user_id,
+//         'X-User-Role': user.role,
+//       },
+//     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to delete property');
-    }
+//     if (!res.ok) {
+//       const err = await res.json();
+//       throw new Error(err.error || 'Failed to delete property');
+//     }
 
-    router.push('/admin/properties');
-  } catch (error) {
-    console.error('Error deleting property:', error.message);
-    alert('Failed to delete property: ' + error.message);
-  }
-};
+//     router.push('/admin/properties');
+//   } catch (error) {
+//     console.error('Error deleting property:', error.message);
+//     alert('Failed to delete property: ' + error.message);
+//   }
+// };
 
 
 
@@ -172,7 +173,7 @@ const handleDeleteProperty = async () => {
           </button>
           <button 
             className="btn btn-error text-white rounded-md text-sm md:text-base px-3 py-1 md:px-4 md:py-2"
-            onClick={handleDeleteProperty}
+            onClick={()=> setShowDeleteModal(true)}
           >
             Delete Property
           </button>
@@ -201,6 +202,60 @@ const handleDeleteProperty = async () => {
           onSave={handleUpdateProperty}
         />
       )}
+      {showDeleteModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md border">
+      <h3 className="text-xl font-bold mb-4 text-red-600">Delete Property</h3>
+      <p className="text-gray-700 mb-4">
+        Are you sure you want to delete this property? This will <strong>permanently</strong> delete the property and <strong>all its units</strong>.
+      </p>
+      <div className="flex justify-end space-x-3">
+        <button
+          className="btn btn-outline rounded-md"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="btn btn-error text-white rounded-md"
+          onClick={async () => {
+            try {
+              const cookie = Cookies.get('user');
+              const user = JSON.parse(cookie);
+
+              if (!user?.user_id || user.role !== 'admin') {
+                throw new Error('Only admins can delete properties.');
+              }
+
+              const res = await fetch(`http://127.0.0.1:5556/properties/${propertyId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-User-ID': user.user_id,
+                  'X-User-Role': user.role,
+                },
+              });
+
+              if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to delete property');
+              }
+
+              setShowDeleteModal(false);
+              router.push('/admin/properties');
+            } catch (error) {
+              console.error('Error deleting property:', error.message);
+              alert('Failed to delete property: ' + error.message);
+              setShowDeleteModal(false);
+            }
+          }}
+        >
+          Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Units Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -225,8 +280,8 @@ const handleDeleteProperty = async () => {
                   
                   <div className="space-y-2 md:space-y-3 text-sm md:text-base">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Unit #:</span>
-                      <span className="font-medium">#{unit.unit_number}</span>
+                      <span className="text-gray-500">Unit :</span>
+                      <span className="font-medium">{unit.unit_number}</span>
                     </div>
                     
                     <div className="flex justify-between">

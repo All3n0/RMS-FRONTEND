@@ -212,13 +212,13 @@ export default function PaymentRecordingModal({ show, onHide, onSubmit, lease })
               <button
                 type="button"
                 onClick={onHide}
-                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md transition-colors"
+                className="btn btn-outline border-gray-400 hover:bg-red-400 text-black px-4 py-2 rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md transition-colors"
+                className="btn btn-outline border-blue-600  text-blue-600 px-4 py-2 rounded-md transition-colors"
               >
                 Record Payment
               </button>

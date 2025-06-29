@@ -62,7 +62,7 @@ export default function PropertiesPage() {
       <div>
         <button 
           onClick={() => setShowForm(true)} 
-          className="bg-blue-600 text-white py-2 rounded-md px-6"
+          className="btn btn-outline border-blue-600 text-blue-600 py-2 rounded-md px-6"
         >
           + Add Property
         </button>

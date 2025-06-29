@@ -183,13 +183,13 @@ export default function AddUnitPopup({ propertyId, onClose }) {
 
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
           <button 
-            className="btn btn-outline border-gray-300 rounded-lg hover:bg-gray-100" 
+            className="btn btn-outline border-black-300 rounded-lg hover:bg-red-400" 
             onClick={onClose}
           >
             Cancel
           </button>
           <button 
-            className="btn btn-primary bg-black text-white rounded-lg hover:bg-gray-800" 
+            className="btn btn-outline border-blue-600 text-blue-600 rounded-lg hover:bg-gray-800" 
             onClick={handleSubmit}
           >
             Add Unit
