@@ -90,7 +90,7 @@ export default function PropertiesPage() {
               <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex items-center gap-4 cursor-pointer border-l-8 border-blue-600">
                 <HomeModernIcon className="h-10 w-10 text-black bg-white p-1 rounded" />
                 <div>
-                  <h2 className="text-xl font-semibold text-black">{property.address}</h2>
+                  <h2 className="text-xl font-semibold text-black">{property.property_name}</h2>
                   <p className="text-gray-600">{property.city}, {property.zip_code}</p>
                 </div>
               </div>

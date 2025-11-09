@@ -157,7 +157,7 @@ export default function PropertyDetailPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">{property.address}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">{property.property_name}</h1>
           <p className="text-sm md:text-base text-gray-600">
             {property.city}, {property.state} {property.zip_code}
           </p>
