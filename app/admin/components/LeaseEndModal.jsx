@@ -7,12 +7,23 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 export default function LeaseEndModal({ show, onHide, onSubmit, lease }) {
   const [endDate, setEndDate] = useState(new Date());
+  const [error, setError] = useState('');
+
+  const handleDateChange = (date) => {
+    setEndDate(date);
+    // Validate that end date is not before lease start date
+    if (lease?.start_date && new Date(date) < new Date(lease.start_date)) {
+      setError(`End date cannot be before start date (${new Date(lease.start_date).toLocaleDateString()})`);
+    } else {
+      setError('');
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (error) return; // Prevent submission if there's an error
     onSubmit(endDate.toISOString().split('T')[0]);
   };
-
   return (
     <Transition appear show={show} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onHide}>
@@ -25,7 +36,7 @@ export default function LeaseEndModal({ show, onHide, onSubmit, lease }) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black bg-opacity-30 " />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -56,7 +67,7 @@ export default function LeaseEndModal({ show, onHide, onSubmit, lease }) {
                       selected={endDate}
                       onChange={setEndDate}
                       dateFormat="yyyy-MM-dd"
-                      minDate={new Date()}
+                      minDate={lease?.start_date ? new Date(lease.start_date) : new Date()}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                       required
                     />
