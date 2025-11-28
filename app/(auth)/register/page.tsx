@@ -8,7 +8,7 @@ export default function RegisterPage() {
     username: '',
     email: '',
     password: '',
-    role: 'user',
+    role: 'tenant',
     is_active: true,
   });
   const [error, setError] = useState('');

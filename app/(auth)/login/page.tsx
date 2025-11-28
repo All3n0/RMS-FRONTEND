@@ -11,8 +11,10 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -25,7 +27,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       headers: { 
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // Crucial for cookies to work
+      credentials: 'include',
       body: JSON.stringify({
         email: form.email.trim(),
         password: form.password
@@ -38,29 +40,43 @@ const handleSubmit = async (e: React.FormEvent) => {
       throw new Error(data.error || 'Login failed');
     }
 
-    // Debug: Check what's being received
-    console.log('Login response:', data);
+    // DEBUG: Check the actual response structure
+    console.log('Full login response:', data);
+    console.log('User data:', data.user);
+    console.log('User role:', data.user?.role);
+    console.log('User ID:', data.user?.user_id);
 
-    // Store user data in cookie (client-side)
+    // Store user data in cookie
     Cookies.set('user', JSON.stringify(data.user), { 
       expires: 7,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax'
     });
 
-    // Debug: Verify cookie was set
-    console.log('Cookie set:', Cookies.get('user'));
+    // DEBUG: Check what was stored in cookie
+    const storedUser = Cookies.get('user');
+    console.log('Stored in cookie:', storedUser);
+    
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      console.log('Parsed cookie role:', parsedUser.role);
+    }
 
-    // Redirect based on role
-    if (data.user.role === 'admin') {
+    // Redirect based on role with explicit checks
+    const userRole = data.user?.role;
+    console.log('Redirecting with role:', userRole);
+    
+    if (userRole === 'admin') {
+      console.log('Redirecting to /admin');
       router.push('/admin');
-    } else if (data.user.role === 'tenant') {
+    } else if (userRole === 'tenant') {
+      console.log('Redirecting to /tenant');
       router.push('/tenant');
     } else {
+      console.log('Redirecting to /dashboard (fallback)');
       router.push('/dashboard');
     }
 
-    // Force refresh to ensure all state updates
     router.refresh();
 
   } catch (err: any) {
@@ -79,6 +95,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           name="email"
           type="email"
           placeholder="Email"
+          value={form.email}
           onChange={handleChange}
           className="input input-bordered w-full"
           required
@@ -87,6 +104,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <input
           name="password"
           type="password"
+          value={form.password}
           placeholder="Password"
           onChange={handleChange}
           className="input input-bordered w-full"

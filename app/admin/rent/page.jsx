@@ -37,8 +37,10 @@ import {
   Fade,
   Zoom,
   Slide,
-  useTheme
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
+
 import { 
   Check as CheckIcon, 
   Close as CloseIcon,
@@ -55,7 +57,15 @@ import {
   Visibility,
   ArrowUpward,
   ArrowDownward,
-  MonetizationOn
+  MonetizationOn,
+  Home,
+  Payment,
+  CalendarToday,
+  EventAvailable,
+  CheckCircle,
+  Error as ErrorIcon,
+  Info as InfoIcon,
+  ReceiptLong
 } from '@mui/icons-material';
 
 import { DatePicker } from '@mui/x-date-pickers';
@@ -84,12 +94,20 @@ const GradientCard = styled(Paper)(({ theme }) => ({
   }
 }));
 
-const PremiumRadialContainer = styled('div')({
+const PremiumRadialContainer = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '180px',
   height: '180px',
   margin: '0 auto',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '160px',
+    height: '160px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '140px',
+    height: '140px',
+  }
+}));
 
 const PremiumOuterProgress = styled('div')(({ theme, percentage }) => ({
   position: 'absolute',
@@ -139,6 +157,18 @@ const PremiumInnerProgress = styled('div')(({ theme, percentage }) => ({
     background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
     boxShadow: 'inset 0 1px 6px rgba(0,0,0,0.08)',
     zIndex: 3,
+  },
+  [theme.breakpoints.down('md')]: {
+    width: '120px',
+    height: '120px',
+    top: '20px',
+    left: '20px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '100px',
+    height: '100px',
+    top: '20px',
+    left: '20px',
   }
 }));
 
@@ -157,6 +187,18 @@ const PremiumRadialCenter = styled('div')(({ theme }) => ({
   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
   zIndex: 4,
   border: '1px solid rgba(255,255,255,0.8)',
+  [theme.breakpoints.down('md')]: {
+    width: '80px',
+    height: '80px',
+    top: '40px',
+    left: '40px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '70px',
+    height: '70px',
+    top: '35px',
+    left: '35px',
+  }
 }));
 
 const PremiumStatCard = styled(Card)(({ theme, glowcolor }) => ({
@@ -180,6 +222,9 @@ const PremiumStatCard = styled(Card)(({ theme, glowcolor }) => ({
   '&:hover': {
     transform: 'translateY(-4px)',
     boxShadow: `0 8px 30px ${alpha(glowcolor || theme.palette.primary.main, 0.15)}`,
+  },
+  [theme.breakpoints.down('md')]: {
+    padding: theme.spacing(2),
   }
 }));
 
@@ -213,22 +258,22 @@ const PremiumTableRow = styled(TableRow)(({ theme, status }) => ({
   transition: 'all 0.2s ease',
   background: 'white',
   position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    left: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: '3px',
-    height: '50%',
-    background: status === 'paid' ? 'linear-gradient(180deg, #4CAF50, #45a049)' :
-              status === 'pending' ? 'linear-gradient(180deg, #FF9800, #F57C00)' :
-              status === 'failed' ? 'linear-gradient(180deg, #f44336, #d32f2f)' :
-              'linear-gradient(180deg, #2196F3, #1976D2)',
-    borderRadius: '0 2px 2px 0',
-    opacity: 0,
-    transition: 'opacity 0.3s ease',
-  },
+  // '&::before': {
+  //   content: '""',
+  //   position: 'absolute',
+  //   left: 0,
+  //   top: '50%',
+  //   transform: 'translateY(-50%)',
+  //   width: '3px',
+  //   height: '50%',
+  //   background: status === 'paid' ? 'linear-gradient(180deg, #4CAF50, #45a049)' :
+  //             status === 'pending' ? 'linear-gradient(180deg, #FF9800, #F57C00)' :
+  //             status === 'failed' ? 'linear-gradient(180deg, #f44336, #d32f2f)' :
+  //             'linear-gradient(180deg, #2196F3, #1976D2)',
+  //   borderRadius: '0 2px 2px 0',
+  //   opacity: 0,
+  //   transition: 'opacity 0.3s ease',
+  // },
   '&:hover': {
     transform: 'translateX(4px)',
     boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
@@ -257,12 +302,15 @@ const statusOptions = [
 export default function RentManagementPage() {
   const router = useRouter();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [admin, setAdmin] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [rentStats, setRentStats] = useState({
     collected: 0,
-    expected: 0,
+    expected: 49000,
     percentage: 0
   });
   const [availableMonths, setAvailableMonths] = useState([]);
@@ -384,7 +432,7 @@ export default function RentManagementPage() {
         console.log('Rent stats:', data);
         setRentStats({
           collected: data.collected || 0,
-          expected: data.expected || 0,
+          expected: data.expected || 49000,
           percentage: data.percentage || 0
         });
         setStatsLoaded(true);
@@ -506,20 +554,26 @@ export default function RentManagementPage() {
           <Slide in={true} direction="down" timeout={800}>
             <Box sx={{ mb: 3 }}>
               <GradientCard>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start',
+                  flexDirection: { xs: 'column', md: 'row' },
+                  gap: { xs: 2, md: 0 }
+                }}>
                   <Box sx={{ position: 'relative', zIndex: 2 }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                    <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: 700, mb: 1 }}>
                       Rent Management
                     </Typography>
-                    <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400, mb: 1 }}>
+                    <Typography variant={isMobile ? "body1" : "h6"} sx={{ opacity: 0.9, fontWeight: 400, mb: 1 }}>
                       Welcome back, <span style={{ fontWeight: 600 }}>{admin?.username}</span>
                     </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    <Typography variant={isMobile ? "caption" : "body2"} sx={{ opacity: 0.8 }}>
                       Real-time financial insights and payment tracking
                     </Typography>
                   </Box>
                   <Box sx={{ 
-                    display: { xs: 'none', md: 'flex' }, 
+                    display: 'flex', 
                     alignItems: 'center',
                     gap: 1,
                     background: 'rgba(255,255,255,0.15)',
@@ -527,8 +581,12 @@ export default function RentManagementPage() {
                     borderRadius: '12px',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255,255,255,0.2)',
+                    mt: { xs: 1, md: 0 }
                   }}>
-                    <AccountBalance sx={{ fontSize: 24 }} />
+                    <AccountBalance sx={{ fontSize: { xs: 20, md: 24 } }} />
+                    <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                      Finance Hub
+                    </Typography>
                   </Box>
                 </Box>
               </GradientCard>
@@ -563,7 +621,7 @@ export default function RentManagementPage() {
             <Grid item xs={12} md={4}>
               <Zoom in={statsLoaded} timeout={1500}>
                 <Box>
-                  <PremiumStatCard glowcolor="#667eea" sx={{ textAlign: 'center', p: 3 }}>
+                  <PremiumStatCard glowcolor="#667eea" sx={{ textAlign: 'center', p: 3, height: '100%' }}>
                     <Typography variant="h6" fontWeight="700" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
                       Collection Rate
                     </Typography>
@@ -588,9 +646,9 @@ export default function RentManagementPage() {
                     <Grid container spacing={2} sx={{ mt: 3 }}>
                       <Grid item xs={6}>
                         <Box sx={{ textAlign: 'center' }}>
-                          <ArrowUpward sx={{ color: '#4CAF50', fontSize: 20, mb: 0.5 }} />
-                          <Typography variant="body1" fontWeight="600" color="success.main">
-                            ${rentStats.collected.toLocaleString()}
+                          <ArrowUpward sx={{ color: '#4CAF50', fontSize: { xs: 18, md: 20 }, mb: 0.5 }} />
+                          <Typography variant={isMobile ? "body2" : "body1"} fontWeight="600" color="success.main">
+                            Ksh {rentStats.collected.toLocaleString()}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" fontWeight="500">
                             Collected
@@ -599,9 +657,9 @@ export default function RentManagementPage() {
                       </Grid>
                       <Grid item xs={6}>
                         <Box sx={{ textAlign: 'center' }}>
-                          <TrendingUp sx={{ color: '#2196F3', fontSize: 20, mb: 0.5 }} />
-                          <Typography variant="body1" fontWeight="600" color="primary.main">
-                            ${rentStats.expected.toLocaleString()}
+                          <TrendingUp sx={{ color: '#2196F3', fontSize: { xs: 18, md: 20 }, mb: 0.5 }} />
+                          <Typography variant={isMobile ? "body2" : "body1"} fontWeight="600" color="primary.main">
+                            Ksh {rentStats.expected.toLocaleString()}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" fontWeight="500">
                             Expected
@@ -616,25 +674,28 @@ export default function RentManagementPage() {
 
             {/* Enhanced Stats Cards */}
             <Grid item xs={12} md={8}>
-              <Grid container spacing={2}>
+              <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid item xs={12} sm={6}>
                   <Fade in={true} timeout={1200}>
-                    <PremiumStatCard glowcolor="#4CAF50">
+                    <PremiumStatCard glowcolor="#4CAF50" sx={{ height: { xs: 'auto', md: '100%' } }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Box sx={{ 
                           p: 1, 
                           borderRadius: '12px', 
                           background: 'linear-gradient(135deg, #4CAF50, #45a049)',
-                          mr: 2
+                          mr: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
-                          <Paid sx={{ color: 'white', fontSize: 20 }} />
+                          <Paid sx={{ color: 'white', fontSize: { xs: 18, md: 20 } }} />
                         </Box>
-                        <Box>
-                          <Typography variant="body1" fontWeight="600" color="success.main" gutterBottom>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant={isMobile ? "body2" : "body1"} fontWeight="600" color="success.main" gutterBottom>
                             Expected Rent
                           </Typography>
-                          <Typography variant="h5" fontWeight="700" color="success.main">
-                            ${rentStats.expected.toLocaleString()}
+                          <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" color="success.main">
+                            Ksh {rentStats.expected.toLocaleString()}
                           </Typography>
                         </Box>
                       </Box>
@@ -647,21 +708,24 @@ export default function RentManagementPage() {
 
                 <Grid item xs={12} sm={6}>
                   <Fade in={true} timeout={1400}>
-                    <PremiumStatCard glowcolor="#2196F3">
+                    <PremiumStatCard glowcolor="#2196F3" sx={{ height: { xs: 'auto', md: '100%' } }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Box sx={{ 
                           p: 1, 
                           borderRadius: '12px', 
                           background: 'linear-gradient(135deg, #2196F3, #1976D2)',
-                          mr: 2
+                          mr: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
-                          <MonetizationOn sx={{ color: 'white', fontSize: 20 }} />
+                          <MonetizationOn sx={{ color: 'white', fontSize: { xs: 18, md: 20 } }} />
                         </Box>
-                        <Box>
-                          <Typography variant="body1" fontWeight="600" color="primary.main" gutterBottom>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant={isMobile ? "body2" : "body1"} fontWeight="600" color="primary.main" gutterBottom>
                             Collected
                           </Typography>
-                          <Typography variant="h5" fontWeight="700" color="primary.main">
+                          <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" color="primary.main">
                             ${rentStats.collected.toLocaleString()}
                           </Typography>
                         </Box>
@@ -681,15 +745,18 @@ export default function RentManagementPage() {
                           p: 1, 
                           borderRadius: '12px', 
                           background: 'linear-gradient(135deg, #FF9800, #F57C00)',
-                          mr: 2
+                          mr: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
-                          <Schedule sx={{ color: 'white', fontSize: 20 }} />
+                          <Schedule sx={{ color: 'white', fontSize: { xs: 18, md: 20 } }} />
                         </Box>
                         <Box sx={{ flex: 1 }}>
-                          <Typography variant="body1" fontWeight="600" color="warning.main" gutterBottom>
+                          <Typography variant={isMobile ? "body2" : "body1"} fontWeight="600" color="warning.main" gutterBottom>
                             Pending Actions
                           </Typography>
-                          <Typography variant="h5" fontWeight="700" color="warning.main">
+                          <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" color="warning.main">
                             {payments.filter(p => p.status === 'pending').length}
                           </Typography>
                         </Box>
@@ -698,8 +765,12 @@ export default function RentManagementPage() {
                           glowcolor="#FF9800"
                           onClick={() => handleFilterChange('status', 'pending')}
                           size="small"
+                          sx={{ 
+                            minWidth: { xs: 'auto', sm: '100px' },
+                            px: { xs: 1, sm: 2 }
+                          }}
                         >
-                          Review
+                          {isMobile ? 'Review' : 'Review All'}
                         </ActionButton>
                       </Box>
                       <Typography variant="caption" color="text.secondary">
@@ -719,6 +790,8 @@ export default function RentManagementPage() {
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 2, sm: 0 },
                 mb: 2 
               }}>
                 <ActionButton
@@ -726,18 +799,25 @@ export default function RentManagementPage() {
                   endIcon={<FilterAlt />}
                   onClick={() => setFiltersOpen(!filtersOpen)}
                   variant="outlined"
+                  sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >
                   {filtersOpen ? 'Hide Filters' : 'Show Filters'}
                 </ActionButton>
                 
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 1, 
+                  width: { xs: '100%', sm: 'auto' },
+                  justifyContent: { xs: 'space-between', sm: 'flex-end' }
+                }}>
                   <ActionButton
                     startIcon={<Clear />}
                     onClick={resetFilters}
                     variant="outlined"
                     size="small"
+                    sx={{ flex: { xs: 1, sm: 'auto' } }}
                   >
-                    Clear
+                    {isMobile ? 'Clear' : 'Clear Filters'}
                   </ActionButton>
                   <ActionButton
                     startIcon={<Search />}
@@ -745,8 +825,9 @@ export default function RentManagementPage() {
                     disabled={loading}
                     variant="contained"
                     size="small"
+                    sx={{ flex: { xs: 1, sm: 'auto' } }}
                   >
-                    Search
+                    {isMobile ? 'Search' : 'Apply Filters'}
                   </ActionButton>
                 </Box>
               </Box>
@@ -864,9 +945,11 @@ export default function RentManagementPage() {
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
-                mb: 3
+                mb: 3,
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 2, sm: 0 }
               }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: 700, color: 'primary.main' }}>
                   Payment Records
                 </Typography>
                 <Chip 
@@ -905,252 +988,356 @@ export default function RentManagementPage() {
                   </Typography>
                 </Box>
               ) : (
-                <TableContainer>
-                  <Table sx={{ minWidth: 650 }}>
-                    <TableHead>
-                      <TableRow sx={{ 
-                        backgroundColor: 'primary.light',
-                        '& th': { 
-                          fontWeight: 600, 
-                          color: 'white',
-                          fontSize: '0.9rem',
-                        }
-                      }}>
-                        <TableCell>Tenant</TableCell>
-                        <TableCell>Unit</TableCell>
-                        <TableCell>Property</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                        <TableCell>Period</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell align="center">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    
-                    <TableBody>
-                      {payments.map((payment, index) => (
-                        <Fade in={true} timeout={500 + (index * 100)} key={payment.payment_id}>
-                          <PremiumTableRow 
-                            status={payment.status}
-                            onClick={() => viewPaymentDetails(payment)}
-                          >
-                            <TableCell>
-                              <Typography fontWeight="600">
-                                {payment.tenant_name}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Typography color="primary.main">
-                                {payment.unit_name}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              {payment.property_name}
-                            </TableCell>
-                            <TableCell align="right">
-                              <Typography fontWeight="700" color="success.main">
-                                ${payment.amount?.toFixed(2)}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Typography color="text.secondary">
-                                {payment.payment_month}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              {payment.payment_date}
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={payment.status}
-                                color={getStatusColor(payment.status)}
-                                size="small"
-                                sx={{ fontWeight: 600 }}
-                              />
-                            </TableCell>
-                            <TableCell align="center">
-                              {payment.status === 'pending' ? (
-                                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                                  <Tooltip title="Approve Payment">
-                                    <IconButton 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        updatePaymentStatus(payment.payment_id, 'completed');
-                                      }}
-                                      sx={{ 
-                                        background: '#4CAF50',
-                                        color: 'white',
-                                        '&:hover': { background: '#45a049' }
-                                      }}
-                                      size="small"
-                                    >
-                                      <CheckIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                  <Tooltip title="Reject Payment">
-                                    <IconButton 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        updatePaymentStatus(payment.payment_id, 'rejected');
-                                      }}
-                                      sx={{ 
-                                        background: '#f44336',
-                                        color: 'white',
-                                        '&:hover': { background: '#d32f2f' }
-                                      }}
-                                      size="small"
-                                    >
-                                      <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                </Box>
-                              ) : (
-                                <Tooltip title="View Details">
-                                  <IconButton 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      viewPaymentDetails(payment);
-                                    }}
-                                    sx={{ 
-                                      background: '#2196F3',
-                                      color: 'white',
-                                      '&:hover': { background: '#1976D2' }
-                                    }}
-                                    size="small"
-                                  >
-                                    <Visibility fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                            </TableCell>
-                          </PremiumTableRow>
-                        </Fade>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <TableContainer sx={{ maxHeight: { xs: '500px', md: 'none' } }}>
+  <Table sx={{ minWidth: 650 }} size={isMobile ? "small" : "medium"}>
+    <TableHead>
+      <TableRow sx={{ 
+        backgroundColor: 'primary.main',
+        '& th': { 
+          fontWeight: 600, 
+          color: 'white',
+          fontSize: { xs: '0.75rem', sm: '0.9rem' },
+          py: { xs: 1.5, sm: 2 },
+          borderBottom: '2px solid',
+          borderBottomColor: 'primary.dark'
+        }
+      }}>
+        <TableCell>Tenant</TableCell>
+        {!isMobile && <TableCell>Unit</TableCell>}
+        {!isTablet && <TableCell>Property</TableCell>}
+        <TableCell align="right">Amount</TableCell>
+        {!isMobile && <TableCell>Period</TableCell>}
+        <TableCell>Date</TableCell>
+        <TableCell>Status</TableCell>
+        <TableCell align="center">Actions</TableCell>
+      </TableRow>
+    </TableHead>
+    
+    <TableBody>
+      {payments.map((payment, index) => (
+        <Fade in={true} timeout={500 + (index * 100)} key={payment.payment_id}>
+          <PremiumTableRow 
+            status={payment.status}
+            onClick={() => viewPaymentDetails(payment)}
+          >
+            {/* Tenant Column */}
+            <TableCell>
+              <Typography fontWeight="600" fontSize={isMobile ? "0.8rem" : "inherit"}>
+                {payment.tenant_name}
+              </Typography>
+              {isMobile && (
+                <Typography variant="caption" color="primary.main" display="block">
+                  {payment.unit_name}
+                </Typography>
+              )}
+            </TableCell>
+
+            {/* Unit Column - shown on tablet and desktop */}
+            {!isMobile && (
+              <TableCell>
+                <Typography color="primary.main" fontSize={isTablet ? "0.8rem" : "inherit"}>
+                  {payment.unit_name}
+                </Typography>
+              </TableCell>
+            )}
+
+            {/* Property Column - shown only on desktop */}
+            {!isTablet && (
+              <TableCell>
+                <Typography fontSize={isTablet ? "0.8rem" : "inherit"}>
+                  {payment.property_name}
+                </Typography>
+              </TableCell>
+            )}
+
+            {/* Amount Column */}
+            <TableCell align="right">
+              <Typography fontWeight="700" color="success.main" fontSize={isMobile ? "0.8rem" : "inherit"}>
+                Ksh {payment.amount?.toFixed(2)}
+              </Typography>
+            </TableCell>
+
+            {/* Period Column - shown on tablet and desktop */}
+            {!isMobile && (
+              <TableCell>
+                <Typography color="text.secondary" fontSize={isTablet ? "0.8rem" : "inherit"}>
+                  {payment.payment_month}
+                </Typography>
+              </TableCell>
+            )}
+
+            {/* Date Column */}
+            <TableCell>
+              <Typography fontSize={isMobile ? "0.8rem" : "inherit"}>
+                {payment.payment_date}
+              </Typography>
+            </TableCell>
+
+            {/* Status Column */}
+            <TableCell>
+              <Chip
+                label={payment.status}
+                color={getStatusColor(payment.status)}
+                size="small"
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: { xs: '0.7rem', sm: '0.8rem' }
+                }}
+              />
+            </TableCell>
+
+            {/* Actions Column */}
+            <TableCell align="center">
+              {payment.status === 'pending' ? (
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 0.5, 
+                  justifyContent: 'center',
+                  flexDirection: { xs: 'column', sm: 'row' }
+                }}>
+                  <Tooltip title="Approve Payment">
+                    <IconButton 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePaymentStatus(payment.payment_id, 'completed');
+                      }}
+                      sx={{ 
+                        background: '#4CAF50',
+                        color: 'white',
+                        '&:hover': { background: '#45a049' }
+                      }}
+                      size={isMobile ? "small" : "medium"}
+                    >
+                      <CheckIcon fontSize={isMobile ? "small" : "small"} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Reject Payment">
+                    <IconButton 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePaymentStatus(payment.payment_id, 'rejected');
+                      }}
+                      sx={{ 
+                        background: '#f44336',
+                        color: 'white',
+                        '&:hover': { background: '#d32f2f' }
+                      }}
+                      size={isMobile ? "small" : "medium"}
+                    >
+                      <CloseIcon fontSize={isMobile ? "small" : "small"} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              ) : (
+                <Tooltip title="View Details">
+                  <IconButton 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      viewPaymentDetails(payment);
+                    }}
+                    sx={{ 
+                      background: '#2196F3',
+                      color: 'white',
+                      '&:hover': { background: '#1976D2' }
+                    }}
+                    size={isMobile ? "small" : "medium"}
+                  >
+                    <Visibility fontSize={isMobile ? "small" : "small"} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </TableCell>
+          </PremiumTableRow>
+        </Fade>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
               )}
             </GlassStatCard>
           </Fade>
 
           {/* Payment Details Dialog */}
-          <Dialog 
-            open={detailsOpen} 
-            onClose={() => setDetailsOpen(false)} 
-            maxWidth="sm" 
-            fullWidth
-            PaperProps={{ 
-              sx: { 
-                borderRadius: '16px',
-              } 
-            }}
-          >
-            <DialogTitle sx={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+{/* Payment Details Dialog */}
+<Dialog 
+  open={detailsOpen} 
+  onClose={() => setDetailsOpen(false)} 
+  maxWidth="sm"
+  fullWidth
+  fullScreen={isMobile}
+  PaperProps={{ 
+    sx: { 
+      borderRadius: { xs: 0, sm: '16px' },
+      m: { xs: 0, sm: 2 },
+      background: 'white',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+    } 
+  }}
+>
+  {/* Compact Header */}
+  <DialogTitle sx={{ 
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+    color: 'white',
+    fontWeight: 700,
+    fontSize: '1.1rem',
+    py: 2,
+    textAlign: 'center'
+  }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+      <Receipt sx={{ fontSize: 20 }} />
+      Payment Details
+    </Box>
+  </DialogTitle>
+  
+  <DialogContent sx={{ p: 0 }}>
+    {selectedPayment && (
+      <Box sx={{ p: 3 }}>
+        {/* Compact Payment Summary */}
+        <Card sx={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: '12px',
+          p: 2,
+          mb: 3,
+          textAlign: 'center'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+            <MonetizationOn sx={{ fontSize: 24 }} />
+            <Typography variant="h5" fontWeight={800}>
+              Ksh {selectedPayment.amount?.toLocaleString()}
+            </Typography>
+          </Box>
+          <Chip 
+            label={selectedPayment.status.toUpperCase()} 
+            size="small"
+            sx={{ 
+              background: 'rgba(255,255,255,0.2)',
               color: 'white',
               fontWeight: 600,
+              fontSize: '0.7rem'
+            }}
+          />
+        </Card>
+
+        {/* Compact Details Grid */}
+        <Grid container spacing={2}>
+          {/* Tenant Info */}
+          <Grid item xs={12}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 2,
+              p: 2,
+              borderRadius: '8px',
+              border: '1px solid',
+              borderColor: 'grey.200',
+              background: 'grey.50'
             }}>
-              Payment Details
-            </DialogTitle>
-            <DialogContent dividers sx={{ p: 3 }}>
-              {selectedPayment && (
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Tenant Information
-                    </Typography>
-                    <Typography variant="body1">
-                      {selectedPayment.tenant_name} 
-                      <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                        (ID: {selectedPayment.tenant_id})
-                      </Typography>
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Property Information
-                    </Typography>
-                    <Typography variant="body1">
-                      {selectedPayment.unit_name}, {selectedPayment.property_name}
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Amount
-                    </Typography>
-                    <Typography variant="h6" fontWeight={700} color="success.main">
-                      ${selectedPayment.amount?.toFixed(2)}
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Payment Method
-                    </Typography>
-                    <Typography variant="body1">
-                      {selectedPayment.payment_method || 'N/A'}
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Payment Month
-                    </Typography>
-                    <Typography variant="body1">
-                      {selectedPayment.payment_month}
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Payment Date
-                    </Typography>
-                    <Typography variant="body1">
-                      {selectedPayment.payment_date}
-                    </Typography>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Status
-                    </Typography>
-                    <Chip
-                      label={selectedPayment.status}
-                      color={getStatusColor(selectedPayment.status)}
-                      sx={{ fontWeight: 600 }}
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" fontWeight={600} color="primary" gutterBottom>
-                      Reference Number
-                    </Typography>
-                    <Typography sx={{ 
-                      fontFamily: 'monospace',
-                      backgroundColor: 'grey.50',
-                      p: 1.5,
-                      borderRadius: '8px',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      fontWeight: 600
-                    }}>
-                      {selectedPayment.transaction_reference_number}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </DialogContent>
-            <DialogActions sx={{ p: 2 }}>
-              <ActionButton 
-                onClick={() => setDetailsOpen(false)}
-                variant="contained"
-              >
-                Close
-              </ActionButton>
-            </DialogActions>
-          </Dialog>
+              <AccountBalance sx={{ color: 'primary.main', fontSize: 20, mt: 0.5 }} />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" fontWeight={600} color="text.primary" gutterBottom>
+                  {selectedPayment.tenant_name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  {selectedPayment.unit_name}, {selectedPayment.property_name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  ID: {selectedPayment.tenant_id}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* Payment Details */}
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 1.5,
+              p: 2,
+              borderRadius: '8px',
+              border: '1px solid',
+              borderColor: 'grey.200'
+            }}>
+              <Payment sx={{ color: 'secondary.main', fontSize: 18, mt: 0.25 }} />
+              <Box>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">
+                  Method
+                </Typography>
+                <Typography variant="body2" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
+                  {selectedPayment.payment_method?.replace('_', ' ') || 'N/A'}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 1.5,
+              p: 2,
+              borderRadius: '8px',
+              border: '1px solid',
+              borderColor: 'grey.200'
+            }}>
+              <EventAvailable sx={{ color: 'primary.main', fontSize: 18, mt: 0.25 }} />
+              <Box>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">
+                  Date
+                </Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {selectedPayment.payment_date}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* Reference Number */}
+          <Grid item xs={12}>
+            <Box sx={{ 
+              p: 2,
+              borderRadius: '8px',
+              border: '1px dashed',
+              borderColor: 'primary.300',
+              background: 'primary.50',
+              textAlign: 'center'
+            }}>
+              <Typography variant="caption" fontWeight={700} color="primary.main" display="block" gutterBottom>
+                REFERENCE NUMBER
+              </Typography>
+              <Typography sx={{ 
+                fontFamily: 'monospace',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                wordBreak: 'break-all',
+                color: 'primary.main'
+              }}>
+                {selectedPayment.transaction_reference_number || 'No reference'}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    )}
+  </DialogContent>
+  
+  <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'grey.100' }}>
+    <Button 
+      onClick={() => setDetailsOpen(false)}
+      variant="outlined"
+      size="small"
+      fullWidth={isMobile}
+      sx={{
+        borderRadius: '8px',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
         </Box>
       </Box>
     </LocalizationProvider>
