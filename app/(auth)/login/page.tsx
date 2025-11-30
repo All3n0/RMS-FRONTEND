@@ -11,10 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -24,7 +22,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const res = await fetch('http://127.0.0.1:5556/login', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
@@ -35,7 +33,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     const data = await res.json();
-    
+
     if (!res.ok) {
       throw new Error(data.error || 'Login failed');
     }
@@ -47,7 +45,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     console.log('User ID:', data.user?.user_id);
 
     // Store user data in cookie
-    Cookies.set('user', JSON.stringify(data.user), { 
+    Cookies.set('user', JSON.stringify(data.user), {
       expires: 7,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax'
@@ -56,7 +54,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     // DEBUG: Check what was stored in cookie
     const storedUser = Cookies.get('user');
     console.log('Stored in cookie:', storedUser);
-    
+
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       console.log('Parsed cookie role:', parsedUser.role);
@@ -65,7 +63,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     // Redirect based on role with explicit checks
     const userRole = data.user?.role;
     console.log('Redirecting with role:', userRole);
-    
+
     if (userRole === 'admin') {
       console.log('Redirecting to /admin');
       router.push('/admin');
@@ -111,13 +109,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           required
         />
         <div className="text-right">
-          <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+          <Link href="/(auth)/forgot-password" className="text-sm text-blue-600 hover:underline">
             Forgot your password?
           </Link>
         </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn btn-neutral w-full mt-4"
           disabled={isLoading}
         >
